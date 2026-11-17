@@ -1,0 +1,23 @@
+[
+  {
+    "category": "ventilation",
+    "observation": "Window appears to have visible gaps around the frame",
+    "confidence": 0.8,
+    "suggestedFix": "Apply weather stripping to improve seal",
+    "paramAdjustment": { "windowCondition": "leaky" }
+  },
+  {
+    "category": "source",
+    "observation": "Gas stove visible without exhaust hood",
+    "confidence": 0.9,
+    "suggestedFix": "Install exhaust hood or increase ventilation during cooking",
+    "paramAdjustment": { "indoorSourceMultiplier": 1.5 }
+  },
+  {
+    "category": "purifier",
+    "observation": "Air purifier placed in corner behind furniture, likely reducing effectiveness",
+    "confidence": 0.7,
+    "suggestedFix": "Move purifier to open area for better air circulation",
+    "paramAdjustment": { "cadrEfficiency": 0.6 }
+  }
+]

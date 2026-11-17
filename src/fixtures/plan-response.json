@@ -1,0 +1,88 @@
+{
+  "householdId": "demo-a",
+  "forecastDate": "2024-01-15",
+  "language": "en",
+  "aqiBand": "Very Unhealthy (AQI 250–300)",
+  "topActions": [
+    {
+      "action": "Keep windows closed and run air purifier continuously",
+      "reason": "Outdoor PM2.5 is 280 µg/m³ — 11× WHO guideline. Keeping windows closed reduces indoor concentration by ~44%.",
+      "impactCard": {
+        "title": "Close Windows",
+        "beforeExposure": 196,
+        "afterExposure": 110,
+        "exposureSaved": 86,
+        "cigaretteEquivalentSaved": 0.16,
+        "formula": "C_in = (0.8 × 0.7 × 280) / (0.7 + 0.2) = 196",
+        "inputs": { "outdoorPm25": 280, "penetrationFactor": 0.8, "ach": 0.7, "depositionRate": 0.2 },
+        "range": { "low": 72, "central": 86, "high": 100 },
+        "dataSourceLabel": "Open-Meteo Air Quality API"
+      },
+      "memberNames": ["Baby Sharma", "Riya", "Amit", "Priya"]
+    },
+    {
+      "action": "Wear N95 mask for any outdoor activity",
+      "reason": "N95 masks filter ~95% of PM2.5. Even short outdoor exposure is significantly reduced.",
+      "impactCard": {
+        "title": "Use N95 Mask Outdoors",
+        "beforeExposure": 280,
+        "afterExposure": 25,
+        "exposureSaved": 255,
+        "cigaretteEquivalentSaved": 0.48,
+        "formula": "C_breathed = 280 × (1 - 0.95 × 0.95) = 25",
+        "inputs": { "ambientPm25": 280, "maskEfficiency": 0.95, "fitFactor": 0.95 },
+        "range": { "low": 191, "central": 255, "high": 319 },
+        "dataSourceLabel": "Open-Meteo Air Quality API"
+      },
+      "memberNames": ["Amit", "Priya"]
+    },
+    {
+      "action": "Open windows during 12:00–14:00 when outdoor PM2.5 drops to 120–145",
+      "reason": "Afternoon sees the lowest outdoor pollution. Ventilating then refreshes air while limiting exposure increase.",
+      "impactCard": {
+        "title": "Ventilate at Optimal Time",
+        "beforeExposure": 196,
+        "afterExposure": 168,
+        "exposureSaved": 28,
+        "cigaretteEquivalentSaved": 0.05,
+        "formula": "C_in(open) = (0.8 × 4.0 × 125) / (4.0 + 0.2) = 95; vs closed = 196",
+        "inputs": { "outdoorPm25Midday": 125, "achOpen": 4.0, "penetrationFactor": 0.8, "depositionRate": 0.2 },
+        "range": { "low": 21, "central": 28, "high": 35 },
+        "dataSourceLabel": "Open-Meteo Air Quality API"
+      },
+      "memberNames": ["Amit", "Priya"]
+    }
+  ],
+  "memberPlans": [
+    {
+      "memberName": "Baby Sharma",
+      "bestOutdoorWindow": "12:00–13:00 (PM2.5 ~120 µg/m³, lowest of the day)",
+      "maskRecommendation": "No mask recommended for infants — keep indoors only",
+      "ventilationWindow": "12:00–14:00 — open windows briefly",
+      "skip": ["All outdoor activities", "Commute during morning/evening rush"]
+    },
+    {
+      "memberName": "Riya",
+      "bestOutdoorWindow": "12:00–14:00 (PM2.5 drops to 120–145 µg/m³)",
+      "maskRecommendation": "N95 required outdoors — asthma risk elevated",
+      "ventilationWindow": "12:00–14:00 — open windows for 1–2 hours",
+      "skip": ["Morning outdoor play (PM2.5 >250)", "Evening activities after 15:00"]
+    },
+    {
+      "memberName": "Amit",
+      "bestOutdoorWindow": "12:00–14:00 (PM2.5 ~120 µg/m³)",
+      "maskRecommendation": "N95 for outdoor activities; surgical acceptable for brief trips",
+      "ventilationWindow": "12:00–14:00",
+      "skip": ["Early morning jog", "Evening commute without mask"]
+    },
+    {
+      "memberName": "Priya",
+      "bestOutdoorWindow": "12:00–14:00 (PM2.5 ~120 µg/m³)",
+      "maskRecommendation": "N95 for outdoor activities; surgical acceptable for brief trips",
+      "ventilationWindow": "12:00–14:00",
+      "skip": ["Early morning jog", "Evening commute without mask"]
+    }
+  ],
+  "disclaimer": "Forecasts are based on Open-Meteo Air Quality API data and physics-based models. Actual indoor concentrations depend on specific building characteristics. Consult a medical professional for health advice specific to your condition. All assumptions and constants are sourced from US EPA and ASHRAE guidance.",
+  "generatedAt": "2024-01-15T06:00:00.000Z"
+}

@@ -1,0 +1,34 @@
+{
+  "demo-a": {
+    "id": "demo-a",
+    "location": { "city": "Gurugram", "latitude": 28.4595, "longitude": 77.0266 },
+    "members": [
+      { "name": "Baby Sharma", "ageGroup": "infant", "sensitivity": "none" },
+      { "name": "Riya", "ageGroup": "child", "sensitivity": "asthma" },
+      { "name": "Amit", "ageGroup": "adult", "sensitivity": "none" },
+      { "name": "Priya", "ageGroup": "adult", "sensitivity": "none" }
+    ],
+    "homeType": "apartment",
+    "windowCondition": "average",
+    "purifier": null,
+    "commuteMode": "car",
+    "commuteHours": 1,
+    "cookingHabits": { "gasStove": true, "timesPerDay": 2 },
+    "maskAvailability": "n95"
+  },
+  "demo-b": {
+    "id": "demo-b",
+    "location": { "city": "Gurugram", "latitude": 28.4595, "longitude": 77.0266 },
+    "members": [
+      { "name": "Mr. Gupta", "ageGroup": "elderly", "sensitivity": "heart-condition" },
+      { "name": "Mrs. Gupta", "ageGroup": "elderly", "sensitivity": "none" }
+    ],
+    "homeType": "independent-house",
+    "windowCondition": "leaky",
+    "purifier": { "cadrM3PerHour": 250, "roomAreaM2": 20 },
+    "commuteMode": "walk",
+    "commuteHours": 0.5,
+    "cookingHabits": { "gasStove": true, "timesPerDay": 2 },
+    "maskAvailability": "surgical"
+  }
+}

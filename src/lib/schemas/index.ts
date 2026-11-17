@@ -1,2 +1,5 @@
-// Placeholder — will be implemented in Phase 3
-export {};
+// Re-export all schemas
+export * from './household';
+export * from './plan';
+export * from './audit';
+export * from './forecast';
