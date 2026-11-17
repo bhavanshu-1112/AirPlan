@@ -1,0 +1,44 @@
+[
+  {
+    "id": "myth-01",
+    "claim": "Indoor air is always cleaner than outdoor air",
+    "verdict": false,
+    "explanation": "Indoor PM2.5 can exceed outdoor levels due to cooking, incense, poor ventilation, and lack of filtration. In well-sealed homes without purifiers, indoor levels typically reach 60-80% of outdoor levels.",
+    "source": "US EPA Indoor Air Quality Guide"
+  },
+  {
+    "id": "myth-02",
+    "claim": "Surgical masks protect against PM2.5",
+    "verdict": "partial",
+    "explanation": "Surgical masks block about 40% of PM2.5 particles — better than nothing, but far less effective than a well-fitted N95 (which blocks about 76% accounting for fit). Cloth masks block roughly 20%.",
+    "source": "WHO PM2.5 Protection Guidelines"
+  },
+  {
+    "id": "myth-03",
+    "claim": "Houseplants can significantly purify indoor air",
+    "verdict": false,
+    "explanation": "While plants do absorb some pollutants, studies show you would need hundreds of plants per room to match even a small air purifier. A single purifier with CADR 150 m³/h does more than 500 plants.",
+    "source": "Cummings & Waring (2020), Journal of Exposure Science"
+  },
+  {
+    "id": "myth-04",
+    "claim": "Opening windows during high pollution is never helpful",
+    "verdict": "partial",
+    "explanation": "If indoor pollution from cooking or other sources exceeds outdoor levels, brief ventilation can actually reduce exposure. AirPlan calculates exactly when this window exists based on your hourly forecast.",
+    "source": "ASHRAE Ventilation Standards"
+  },
+  {
+    "id": "myth-05",
+    "claim": "AQI 100-150 is safe for everyone",
+    "verdict": false,
+    "explanation": "AQI 100-150 ('Unhealthy for Sensitive Groups') can trigger symptoms in people with asthma, heart conditions, elderly individuals, and young children. These groups should limit prolonged outdoor exposure.",
+    "source": "US EPA AQI Categories"
+  },
+  {
+    "id": "myth-06",
+    "claim": "Running an exhaust fan while cooking is enough",
+    "verdict": "partial",
+    "explanation": "Exhaust fans help but may not be sufficient. Gas stove cooking can produce 300+ µg/h of PM2.5. An exhaust fan removes some, but a closed kitchen with a fan still accumulates pollution. Opening a window briefly after cooking helps more.",
+    "source": "Indoor Air Quality Research, Lawrence Berkeley National Laboratory"
+  }
+]
