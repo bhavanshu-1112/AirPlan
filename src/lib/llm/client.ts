@@ -9,9 +9,7 @@ export function getAnthropicClient(): Anthropic | undefined {
   if (!clientInstance) {
     const apiKey = process.env['ANTHROPIC_API_KEY'];
     if (!apiKey) {
-      throw new ConfigError(
-        'ANTHROPIC_API_KEY required when DEMO_MODE is not true.',
-      );
+      throw new ConfigError('ANTHROPIC_API_KEY required when DEMO_MODE is not true.');
     }
     clientInstance = new Anthropic({ apiKey });
   }

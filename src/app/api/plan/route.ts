@@ -23,13 +23,36 @@ const PlanRequestSchema = z
   })
   .strict();
 
+async function resolveHouseholdAndForecast(householdId: string): Promise<{
+  household: Household;
+  forecast: ForecastResponse;
+}> {
+  if (process.env['DEMO_MODE'] === 'true') {
+    const householdsMap = householdsFixture as Record<string, Household>;
+    // eslint-disable-next-line security/detect-object-injection
+    const household = householdsMap[householdId];
+    if (!household) {
+      throw new NotFoundError(`Household ${householdId} not found`);
+    }
+    const forecast = ForecastResponseSchema.parse(forecastFixture);
+    return { household, forecast };
+  }
+
+  const store = new JsonHouseholdStore();
+  const household = await store.get(householdId);
+  if (!household) {
+    throw new NotFoundError(`Household ${householdId} not found`);
+  }
+  const forecast = await fetchForecast(household.location.latitude, household.location.longitude);
+  return { household, forecast };
+}
+
 export async function POST(request: NextRequest): Promise<Response> {
   try {
     const forwarded = request.headers.get('x-forwarded-for');
     const ip = (forwarded ? forwarded.split(',')[0]?.trim() : null) || 'anonymous';
 
-    const rateResult = checkRateLimit(ip, 10, 60000);
-    if (!rateResult.allowed) {
+    if (!checkRateLimit(ip, 10, 60000).allowed) {
       throw new RateLimitError();
     }
 
@@ -46,29 +69,7 @@ export async function POST(request: NextRequest): Promise<Response> {
     }
 
     const { householdId, language } = parsed.data;
-
-    let household: Household | undefined;
-    let forecast: ForecastResponse;
-
-    if (process.env['DEMO_MODE'] === 'true') {
-      const householdsMap = householdsFixture as Record<string, Household>;
-      household = householdsMap[householdId];
-      if (!household) {
-        throw new NotFoundError(`Household ${householdId} not found`);
-      }
-      forecast = ForecastResponseSchema.parse(forecastFixture);
-    } else {
-      const store = new JsonHouseholdStore();
-      household = await store.get(householdId);
-      if (!household) {
-        throw new NotFoundError(`Household ${householdId} not found`);
-      }
-      forecast = await fetchForecast(
-        household.location.latitude,
-        household.location.longitude,
-      );
-    }
-
+    const { household, forecast } = await resolveHouseholdAndForecast(householdId);
     const plan = await generatePlan(household, forecast, language);
     return Response.json(plan);
   } catch (error) {

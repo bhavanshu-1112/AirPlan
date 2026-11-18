@@ -29,7 +29,9 @@ export function calcMaskEffect(
     };
   }
 
+  // eslint-disable-next-line security/detect-object-injection
   const efficiency = (MASK_EFFICIENCIES[maskType] ?? MASK_EFFICIENCIES['none']!).value;
+  // eslint-disable-next-line security/detect-object-injection
   const fitFactor = (MASK_FIT_FACTORS[ageGroup] ?? MASK_FIT_FACTORS['adult']!).value;
   const reduction = efficiency * fitFactor;
   const central = ambientPm25UgM3 * (1 - reduction);

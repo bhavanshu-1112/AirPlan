@@ -2,7 +2,7 @@ import { calcCommuteSwap } from '@/lib/calc/commuteSwap';
 
 describe('calcCommuteSwap', () => {
   const ambient = 100; // µg/m³
-  const hours = 1;    // 1h commute
+  const hours = 1; // 1h commute
 
   it('car → metro saves exposure (car=0.6, metro=0.4)', () => {
     // saved = (0.6 - 0.4) × 100 × 1 = 20 µg/m³·h

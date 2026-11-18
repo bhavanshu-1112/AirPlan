@@ -15,8 +15,7 @@ function formatAction(action: Plan['topActions'][number], index: number): string
   const displayNum = index + DISPLAY_INDEX_OFFSET;
   const { title, exposureSaved, beforeExposure, afterExposure, cigaretteEquivalentSaved } =
     action.impactCard;
-  const members =
-    action.memberNames.length > 0 ? action.memberNames.join(', ') : 'All members';
+  const members = action.memberNames.length > 0 ? action.memberNames.join(', ') : 'All members';
 
   return [
     `${displayNum}. ${action.action}`,

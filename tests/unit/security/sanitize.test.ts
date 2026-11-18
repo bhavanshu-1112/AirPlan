@@ -1,4 +1,8 @@
-import { sanitizeString, redactCoordinates, redactApiKey } from '../../../src/lib/security/sanitize';
+import {
+  sanitizeString,
+  redactCoordinates,
+  redactApiKey,
+} from '../../../src/lib/security/sanitize';
 
 describe('sanitizeString', () => {
   it('trims leading and trailing whitespace', () => {

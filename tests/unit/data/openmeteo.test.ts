@@ -1,7 +1,7 @@
 import { fetchForecast, searchCity } from '@/lib/data/openmeteo';
 
-// Tests run in DEMO_MODE implicitly since we don't set ANTHROPIC_API_KEY
-// and the functions fall back to fixtures
+// Tests run in DEMO_MODE implicitly since we set it
+// and also test the non-demo paths with mocked fetch
 
 describe('openmeteo data adapters', () => {
   const originalEnv = process.env;
@@ -64,6 +64,85 @@ describe('openmeteo data adapters', () => {
         expect(typeof r.longitude).toBe('number');
         expect(typeof r.country).toBe('string');
       }
+    });
+  });
+
+  describe('non-demo mode with fetch', () => {
+    const originalFetch = globalThis.fetch;
+
+    beforeEach(() => {
+      process.env = { ...originalEnv, DEMO_MODE: 'false' };
+    });
+
+    afterEach(() => {
+      globalThis.fetch = originalFetch;
+    });
+
+    it('fetchForecast falls back to fixture on network error', async () => {
+      globalThis.fetch = jest.fn().mockRejectedValue(new Error('Network error'));
+      // Use unique coordinates to avoid cache hit
+      const result = await fetchForecast(10.123, 20.456);
+      expect(result).toBeDefined();
+      expect(result.hourly.pm2_5).toBeInstanceOf(Array);
+    });
+
+    it('fetchForecast falls back to fixture on HTTP error', async () => {
+      globalThis.fetch = jest.fn().mockResolvedValue({
+        ok: false,
+        status: 500,
+        statusText: 'Internal Server Error',
+      });
+      const result = await fetchForecast(11.111, 22.222);
+      expect(result).toBeDefined();
+      expect(result.hourly.pm2_5).toBeInstanceOf(Array);
+    });
+
+    it('searchCity falls back to fixture on network error', async () => {
+      globalThis.fetch = jest.fn().mockRejectedValue(new Error('Network error'));
+      const results = await searchCity('NonExistentCity12345');
+      expect(results).toBeInstanceOf(Array);
+      expect(results.length).toBeGreaterThan(0);
+    });
+
+    it('fetchForecast parses valid API response', async () => {
+      const mockResponse = {
+        hourly: {
+          time: ['2024-01-01T00:00'],
+          pm2_5: [45.0],
+          pm10: [80.0],
+          us_aqi: [120],
+        },
+        hourly_units: { pm2_5: 'µg/m³', pm10: 'µg/m³', us_aqi: '' },
+      };
+      globalThis.fetch = jest.fn().mockResolvedValue({
+        ok: true,
+        json: async () => mockResponse,
+      });
+      const result = await fetchForecast(33.333, 44.444);
+      expect(result.hourly.pm2_5[0]).toBe(45.0);
+    });
+
+    it('searchCity parses valid API response', async () => {
+      const mockResponse = {
+        results: [{ name: 'TestCity', latitude: 10, longitude: 20, country: 'TC' }],
+      };
+      globalThis.fetch = jest.fn().mockResolvedValue({
+        ok: true,
+        json: async () => mockResponse,
+      });
+      const results = await searchCity('uniqueTestQuery999');
+      expect(results.length).toBe(1);
+      expect(results[0]!.name).toBe('TestCity');
+    });
+
+    it('searchCity handles empty results', async () => {
+      const mockResponse = {};
+      globalThis.fetch = jest.fn().mockResolvedValue({
+        ok: true,
+        json: async () => mockResponse,
+      });
+      const results = await searchCity('emptyResultQuery777');
+      expect(results).toEqual([]);
     });
   });
 });

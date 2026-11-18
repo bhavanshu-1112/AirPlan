@@ -9,19 +9,21 @@
 
 ## Caching Strategy
 
-| Data | TTL | Dedup |
-|---|---|---|
-| Air quality forecast | 30 minutes | Yes (in-flight) |
-| Geocoding results | 24 hours | Yes (in-flight) |
-| Household data | N/A (file read) | N/A |
+| Data                 | TTL             | Dedup           |
+| -------------------- | --------------- | --------------- |
+| Air quality forecast | 30 minutes      | Yes (in-flight) |
+| Geocoding results    | 24 hours        | Yes (in-flight) |
+| Household data       | N/A (file read) | N/A             |
 
 The `TTLCache` class in `src/lib/data/cache.ts` supports:
+
 - Time-based expiry
 - In-flight request deduplication (concurrent requests for the same key share one fetch)
 
 ## Calculation Layer Performance
 
 All calc functions are pure and synchronous — no I/O, no async overhead:
+
 - `calcExposure`: O(n) where n = hourly data points (~72 for 3-day forecast)
 - `calcIndoorConcentration`: O(1) — single formula evaluation
 - `calcMaskEffect`: O(1)
@@ -39,12 +41,12 @@ Checked by `npm run verify` which runs `next build` and measures total JS in `.n
 
 ## Network Requests
 
-| Page | API Calls | Notes |
-|---|---|---|
-| Home | 0 | Static content + myths.json (bundled) |
-| Setup | 1+ geocode | Debounced at 300ms |
-| Plan | 1 plan POST | Single request, includes all calc results |
-| Audit | 1 audit POST | Image upload, single response |
+| Page  | API Calls    | Notes                                     |
+| ----- | ------------ | ----------------------------------------- |
+| Home  | 0            | Static content + myths.json (bundled)     |
+| Setup | 1+ geocode   | Debounced at 300ms                        |
+| Plan  | 1 plan POST  | Single request, includes all calc results |
+| Audit | 1 audit POST | Image upload, single response             |
 
 ## Image Handling
 

@@ -1,16 +1,12 @@
 import {
   HouseholdSchema,
-  MemberSchema,
-  LocationSchema,
-  PurifierSchema,
-  CookingHabitsSchema,
   AgeGroupSchema,
   SensitivitySchema,
   WindowConditionSchema,
   MaskTypeSchema,
   CommuteModeSchema,
 } from '@/lib/schemas/household';
-import { PlanSchema, ImpactCardSchema, RecommendationSchema, MemberPlanSchema } from '@/lib/schemas/plan';
+import { ImpactCardSchema, RecommendationSchema, MemberPlanSchema } from '@/lib/schemas/plan';
 import { AuditFindingSchema, AuditResultSchema } from '@/lib/schemas/audit';
 import {
   ForecastResponseSchema,

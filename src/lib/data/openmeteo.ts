@@ -42,7 +42,7 @@ async function fetchWithRetry(url: string, maxRetries: number = 2): Promise<Resp
 
 const parsedForecastFixture = ForecastResponseSchema.parse(forecastFixture);
 const parsedGeocodingFixture: GeocodingResult[] = geocodingFixtureRaw.map((item) =>
-  GeocodingResultSchema.parse(item)
+  GeocodingResultSchema.parse(item),
 );
 
 /**
@@ -51,7 +51,10 @@ const parsedGeocodingFixture: GeocodingResult[] = geocodingFixtureRaw.map((item)
  * @param latitude - Latitude in decimal degrees
  * @param longitude - Longitude in decimal degrees
  */
-export async function fetchForecast(latitude: number, longitude: number): Promise<ForecastResponse> {
+export async function fetchForecast(
+  latitude: number,
+  longitude: number,
+): Promise<ForecastResponse> {
   if (isDemoMode()) return parsedForecastFixture;
   const key = `${latitude},${longitude}`;
   return forecastCache.getOrFetch(key, async () => {

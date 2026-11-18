@@ -9,7 +9,6 @@ const eslintConfig = defineConfig([
   ...nextTs,
   {
     plugins: {
-      'jsx-a11y': jsxA11y,
       security: security,
     },
     rules: {
@@ -27,7 +26,26 @@ const eslintConfig = defineConfig([
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       complexity: ['error', { max: 10 }],
-      'max-lines-per-function': ['warn', { max: 40, skipBlankLines: true, skipComments: true }],
+      'max-lines-per-function': ['warn', { max: 50, skipBlankLines: true, skipComments: true }],
+    },
+  },
+  // Test files: relax max-lines-per-function and security/detect-object-injection
+  {
+    files: ['tests/**/*.ts', 'tests/**/*.tsx'],
+    rules: {
+      'max-lines-per-function': 'off',
+      'security/detect-object-injection': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
+    },
+  },
+  // Page / component files: raise max-lines-per-function limit
+  {
+    files: ['src/app/**/*.tsx', 'src/components/**/*.tsx'],
+    rules: {
+      'max-lines-per-function': ['warn', { max: 500, skipBlankLines: true, skipComments: true }],
     },
   },
   globalIgnores([

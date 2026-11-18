@@ -36,12 +36,7 @@ function hasSensitivityAlert(sensitivity: string): boolean {
   );
 }
 
-export function MemberChip({
-  name,
-  ageGroup,
-  sensitivity,
-  className,
-}: MemberChipProps) {
+export function MemberChip({ name, ageGroup, sensitivity, className }: MemberChipProps) {
   const ageIcon = getAgeGroupIcon(ageGroup);
   const showAlert = hasSensitivityAlert(sensitivity);
 

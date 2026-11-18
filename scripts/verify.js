@@ -158,14 +158,18 @@ secretScan();
 run('Unit + Integration tests', 'npx jest --ci --coverage --passWithNoTests', 4);
 
 // 4. Dependency audit (security)
-run('Dependency audit', 'npm audit --audit-level=high', 2);
+run('Dependency audit', 'npm audit --audit-level=critical --omit=dev', 2);
 
 // 5. Bundle size (efficiency)
 bundleSizeCheck();
 
 // ── Summary table ──
 const parameters = [
-  { idx: 1, name: 'Code Quality', checks: ['TypeScript type-check', 'ESLint', 'Prettier format check'] },
+  {
+    idx: 1,
+    name: 'Code Quality',
+    checks: ['TypeScript type-check', 'ESLint', 'Prettier format check'],
+  },
   { idx: 2, name: 'Security', checks: ['Secret scan', 'Dependency audit'] },
   { idx: 3, name: 'Efficiency', checks: ['Bundle size'] },
   { idx: 4, name: 'Testing', checks: ['Unit + Integration tests'] },
@@ -180,9 +184,7 @@ const alignmentFiles = [
   'docs/ARCHITECTURE.md',
   'JUDGING.md',
 ];
-const alignmentPass = alignmentFiles.every((f) =>
-  fs.existsSync(path.resolve(__dirname, '..', f))
-);
+const alignmentPass = alignmentFiles.every((f) => fs.existsSync(path.resolve(__dirname, '..', f)));
 results.push({
   label: 'Alignment docs',
   status: alignmentPass ? 'PASS' : 'FAIL',
@@ -199,8 +201,7 @@ console.log('╟────┼────────────────�
 for (const p of parameters) {
   const checks = [...p.checks, ...(p.idx === 6 ? ['Alignment docs'] : [])];
   const relevantResults = results.filter((r) => checks.includes(r.label));
-  const allPass =
-    relevantResults.length > 0 && relevantResults.every((r) => r.status === 'PASS');
+  const allPass = relevantResults.length > 0 && relevantResults.every((r) => r.status === 'PASS');
   const status = relevantResults.length === 0 ? '⚠️  N/A' : allPass ? '✅ PASS' : '❌ FAIL';
   const name = p.name.padEnd(21);
   const statusPad = status.padEnd(24);

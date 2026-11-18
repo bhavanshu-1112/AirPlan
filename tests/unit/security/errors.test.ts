@@ -87,7 +87,7 @@ describe('errorToResponse', () => {
     const err = new ValidationError('Bad field', { field: 'email' });
     const res = errorToResponse(err);
     expect(res.status).toBe(400);
-    const body = await res.json() as { error: { code: string; message: string } };
+    const body = (await res.json()) as { error: { code: string; message: string } };
     expect(body.error.code).toBe('VALIDATION_ERROR');
     expect(body.error.message).toBe('Bad field');
   });
@@ -95,21 +95,21 @@ describe('errorToResponse', () => {
   it('returns 500 for unknown error', async () => {
     const res = errorToResponse(new Error('oops'));
     expect(res.status).toBe(500);
-    const body = await res.json() as { error: { code: string } };
+    const body = (await res.json()) as { error: { code: string } };
     expect(body.error.code).toBe('INTERNAL_ERROR');
   });
 
   it('returns 500 for non-Error thrown value', async () => {
     const res = errorToResponse('string error');
     expect(res.status).toBe(500);
-    const body = await res.json() as { error: { code: string } };
+    const body = (await res.json()) as { error: { code: string } };
     expect(body.error.code).toBe('INTERNAL_ERROR');
   });
 
   it('returns 429 for RateLimitError', async () => {
     const res = errorToResponse(new RateLimitError());
     expect(res.status).toBe(429);
-    const body = await res.json() as { error: { code: string } };
+    const body = (await res.json()) as { error: { code: string } };
     expect(body.error.code).toBe('RATE_LIMIT_ERROR');
   });
 

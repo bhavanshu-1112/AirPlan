@@ -1,5 +1,5 @@
 import { calcMaskEffect } from '@/lib/calc/mask';
-import type { MaskType, AgeGroup } from '@/lib/calc/types';
+import type { MaskType } from '@/lib/calc/types';
 
 describe('calcMaskEffect', () => {
   const ambient = 100; // µg/m³

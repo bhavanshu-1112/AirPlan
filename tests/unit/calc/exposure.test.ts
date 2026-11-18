@@ -5,7 +5,7 @@ describe('calcExposure', () => {
     // E = 50 × 1.0 = 50 µg/m³·h
     const result = calcExposure([50]);
     expect(result.central).toBeCloseTo(50);
-    expect(result.low).toBeCloseTo(37.5);  // 50 × 0.75
+    expect(result.low).toBeCloseTo(37.5); // 50 × 0.75
     expect(result.high).toBeCloseTo(62.5); // 50 × 1.25
   });
 
@@ -13,7 +13,7 @@ describe('calcExposure', () => {
     // E = 100×1 + 100×1 + 100×1 = 300 µg/m³·h
     const result = calcExposure([100, 100, 100]);
     expect(result.central).toBeCloseTo(300);
-    expect(result.low).toBeCloseTo(225);  // 300 × 0.75
+    expect(result.low).toBeCloseTo(225); // 300 × 0.75
     expect(result.high).toBeCloseTo(375); // 300 × 1.25
   });
 
@@ -41,11 +41,7 @@ describe('calcExposure', () => {
   });
 
   it('low ≤ central ≤ high for any input', () => {
-    const inputs = [
-      [10, 20, 30, 40, 50],
-      [0],
-      [1000],
-    ];
+    const inputs = [[10, 20, 30, 40, 50], [0], [1000]];
     for (const arr of inputs) {
       const r = calcExposure(arr);
       expect(r.low).toBeLessThanOrEqual(r.central);

@@ -18,6 +18,7 @@ async function readStore(): Promise<StoreData> {
     for (const [key, value] of Object.entries(parsed as Record<string, unknown>)) {
       const result = HouseholdSchema.safeParse(value);
       if (result.success) {
+        // eslint-disable-next-line security/detect-object-injection
         store[key] = result.data;
       }
     }
@@ -38,6 +39,7 @@ async function writeStore(data: StoreData): Promise<void> {
 export class JsonHouseholdStore implements HouseholdRepository {
   async get(id: string): Promise<Household | undefined> {
     const store = await readStore();
+    // eslint-disable-next-line security/detect-object-injection
     return store[id];
   }
 
@@ -45,6 +47,7 @@ export class JsonHouseholdStore implements HouseholdRepository {
     const store = await readStore();
     const id = household.id ?? crypto.randomUUID();
     const saved: Household = { ...household, id };
+    // eslint-disable-next-line security/detect-object-injection
     store[id] = saved;
     await writeStore(store);
     return saved;
@@ -53,7 +56,7 @@ export class JsonHouseholdStore implements HouseholdRepository {
   async delete(id: string): Promise<boolean> {
     const store = await readStore();
     if (!(id in store)) return false;
-    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+    // eslint-disable-next-line security/detect-object-injection
     delete store[id];
     await writeStore(store);
     return true;

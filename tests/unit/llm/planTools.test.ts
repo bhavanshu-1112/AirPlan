@@ -114,9 +114,8 @@ describe('llm client and prompts', () => {
   });
 
   it('prompts: exports expected prompts and generates user prompt', async () => {
-    const { PLAN_SYSTEM_PROMPT, AUDIT_SYSTEM_PROMPT, getPlanUserPrompt } = await import(
-      '@/lib/llm'
-    );
+    const { PLAN_SYSTEM_PROMPT, AUDIT_SYSTEM_PROMPT, getPlanUserPrompt } =
+      await import('@/lib/llm');
     expect(typeof PLAN_SYSTEM_PROMPT).toBe('string');
     expect(typeof AUDIT_SYSTEM_PROMPT).toBe('string');
 
@@ -127,4 +126,3 @@ describe('llm client and prompts', () => {
     expect(promptHi).toContain('Hindi');
   });
 });
-

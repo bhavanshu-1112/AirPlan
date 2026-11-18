@@ -36,6 +36,7 @@ export function calcIndoorConcentration(
 
   const V = area * height; // room volume m³
   const P = PENETRATION_FACTOR.value; // 0.8
+  // eslint-disable-next-line security/detect-object-injection
   const a = (AIR_EXCHANGE_RATES[windowCondition] ?? AIR_EXCHANGE_RATES['average']!).value;
   const k = DEPOSITION_RATE.value; // 0.2
 

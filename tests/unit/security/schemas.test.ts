@@ -1,4 +1,9 @@
-import { HouseholdSchema, MemberSchema, LocationSchema, PurifierSchema } from '../../../src/lib/schemas/household';
+import {
+  HouseholdSchema,
+  MemberSchema,
+  LocationSchema,
+  PurifierSchema,
+} from '../../../src/lib/schemas/household';
 
 const validHousehold = {
   location: { city: 'Delhi', latitude: 28.6, longitude: 77.2 },
@@ -72,6 +77,7 @@ describe('HouseholdSchema', () => {
 
   it('rejects missing required fields', () => {
     const { location: _loc, ...rest } = validHousehold;
+    void _loc;
     const result = HouseholdSchema.safeParse(rest);
     expect(result.success).toBe(false);
   });
@@ -99,24 +105,41 @@ describe('LocationSchema', () => {
   });
 
   it('rejects extra fields', () => {
-    const result = LocationSchema.safeParse({ city: 'Delhi', latitude: 28, longitude: 77, country: 'IN' });
+    const result = LocationSchema.safeParse({
+      city: 'Delhi',
+      latitude: 28,
+      longitude: 77,
+      country: 'IN',
+    });
     expect(result.success).toBe(false);
   });
 });
 
 describe('MemberSchema', () => {
   it('accepts valid member', () => {
-    const result = MemberSchema.safeParse({ name: 'Bob', ageGroup: 'child', sensitivity: 'asthma' });
+    const result = MemberSchema.safeParse({
+      name: 'Bob',
+      ageGroup: 'child',
+      sensitivity: 'asthma',
+    });
     expect(result.success).toBe(true);
   });
 
   it('rejects invalid ageGroup', () => {
-    const result = MemberSchema.safeParse({ name: 'Bob', ageGroup: 'teenager', sensitivity: 'none' });
+    const result = MemberSchema.safeParse({
+      name: 'Bob',
+      ageGroup: 'teenager',
+      sensitivity: 'none',
+    });
     expect(result.success).toBe(false);
   });
 
   it('rejects invalid sensitivity', () => {
-    const result = MemberSchema.safeParse({ name: 'Bob', ageGroup: 'adult', sensitivity: 'allergy' });
+    const result = MemberSchema.safeParse({
+      name: 'Bob',
+      ageGroup: 'adult',
+      sensitivity: 'allergy',
+    });
     expect(result.success).toBe(false);
   });
 

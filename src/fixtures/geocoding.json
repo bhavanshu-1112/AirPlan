@@ -1,4 +1,16 @@
 [
-  { "name": "Gurugram", "latitude": 28.4595, "longitude": 77.0266, "country": "India", "admin1": "Haryana" },
-  { "name": "Gurgaon", "latitude": 28.4595, "longitude": 77.0266, "country": "India", "admin1": "Haryana" }
+  {
+    "name": "Gurugram",
+    "latitude": 28.4595,
+    "longitude": 77.0266,
+    "country": "India",
+    "admin1": "Haryana"
+  },
+  {
+    "name": "Gurgaon",
+    "latitude": 28.4595,
+    "longitude": 77.0266,
+    "country": "India",
+    "admin1": "Haryana"
+  }
 ]

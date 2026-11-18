@@ -59,7 +59,10 @@ export const PLAN_TOOLS = [
       type: 'object' as const,
       properties: {
         currentMode: { type: 'string' as const, enum: ['car', 'metro', 'bus', 'bicycle', 'walk'] },
-        alternativeMode: { type: 'string' as const, enum: ['car', 'metro', 'bus', 'bicycle', 'walk'] },
+        alternativeMode: {
+          type: 'string' as const,
+          enum: ['car', 'metro', 'bus', 'bicycle', 'walk'],
+        },
         commuteHours: { type: 'number' as const },
         ambientPm25: { type: 'number' as const },
       },

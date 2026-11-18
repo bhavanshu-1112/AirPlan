@@ -14,7 +14,12 @@
         "exposureSaved": 86,
         "cigaretteEquivalentSaved": 0.16,
         "formula": "C_in = (0.8 × 0.7 × 280) / (0.7 + 0.2) = 196",
-        "inputs": { "outdoorPm25": 280, "penetrationFactor": 0.8, "ach": 0.7, "depositionRate": 0.2 },
+        "inputs": {
+          "outdoorPm25": 280,
+          "penetrationFactor": 0.8,
+          "ach": 0.7,
+          "depositionRate": 0.2
+        },
         "range": { "low": 72, "central": 86, "high": 100 },
         "dataSourceLabel": "Open-Meteo Air Quality API"
       },
@@ -46,7 +51,12 @@
         "exposureSaved": 28,
         "cigaretteEquivalentSaved": 0.05,
         "formula": "C_in(open) = (0.8 × 4.0 × 125) / (4.0 + 0.2) = 95; vs closed = 196",
-        "inputs": { "outdoorPm25Midday": 125, "achOpen": 4.0, "penetrationFactor": 0.8, "depositionRate": 0.2 },
+        "inputs": {
+          "outdoorPm25Midday": 125,
+          "achOpen": 4.0,
+          "penetrationFactor": 0.8,
+          "depositionRate": 0.2
+        },
         "range": { "low": 21, "central": 28, "high": 35 },
         "dataSourceLabel": "Open-Meteo Air Quality API"
       },

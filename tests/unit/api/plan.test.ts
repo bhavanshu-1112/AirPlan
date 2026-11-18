@@ -72,7 +72,10 @@ describe('POST /api/plan', () => {
       expect(res.status).toBe(200);
     }
 
-    const rateLimitedReq = makeRequest({ householdId: 'demo-a' }, { 'x-forwarded-for': '10.0.0.1' });
+    const rateLimitedReq = makeRequest(
+      { householdId: 'demo-a' },
+      { 'x-forwarded-for': '10.0.0.1' },
+    );
     const res = await POST(rateLimitedReq);
     expect(res.status).toBe(429);
 

@@ -40,7 +40,12 @@ export const AIR_EXCHANGE_RATES: Record<string, Constant> = {
   tight: { value: 0.3, unit: '1/h', source: 'ASHRAE 62.2', isAssumption: false },
   average: { value: 0.7, unit: '1/h', source: 'ASHRAE 62.2', isAssumption: false },
   leaky: { value: 1.5, unit: '1/h', source: 'ASHRAE 62.2', isAssumption: false },
-  open: { value: 4.0, unit: '1/h', source: 'ASHRAE 62.2 / field measurements', isAssumption: false },
+  open: {
+    value: 4.0,
+    unit: '1/h',
+    source: 'ASHRAE 62.2 / field measurements',
+    isAssumption: false,
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -50,17 +55,47 @@ export const AIR_EXCHANGE_RATES: Record<string, Constant> = {
 /** Mask filtration efficiency (fraction of particles blocked by the filter medium). */
 export const MASK_EFFICIENCIES: Record<string, Constant> = {
   none: { value: 0.0, unit: 'dimensionless', source: 'N/A', isAssumption: false },
-  surgical: { value: 0.6, unit: 'dimensionless', source: 'CDC surgical mask guidance', isAssumption: false },
-  n95: { value: 0.95, unit: 'dimensionless', source: 'NIOSH N95 certification standard', isAssumption: false },
+  surgical: {
+    value: 0.6,
+    unit: 'dimensionless',
+    source: 'CDC surgical mask guidance',
+    isAssumption: false,
+  },
+  n95: {
+    value: 0.95,
+    unit: 'dimensionless',
+    source: 'NIOSH N95 certification standard',
+    isAssumption: false,
+  },
   cloth: { value: 0.3, unit: 'dimensionless', source: 'Clase et al. (2020)', isAssumption: false },
 };
 
 /** Mask fit factor by age group (fraction of inhaled air that actually passes through filter). */
 export const MASK_FIT_FACTORS: Record<string, Constant> = {
-  infant: { value: 0.0, unit: 'dimensionless', source: 'AAP: masks not recommended for infants', isAssumption: false },
-  child: { value: 0.5, unit: 'dimensionless', source: 'Assumed reduced fit for children', isAssumption: true },
-  adult: { value: 0.9, unit: 'dimensionless', source: 'OSHA fit-testing guidance', isAssumption: false },
-  elderly: { value: 0.7, unit: 'dimensionless', source: 'Assumed reduced fit for elderly', isAssumption: true },
+  infant: {
+    value: 0.0,
+    unit: 'dimensionless',
+    source: 'AAP: masks not recommended for infants',
+    isAssumption: false,
+  },
+  child: {
+    value: 0.5,
+    unit: 'dimensionless',
+    source: 'Assumed reduced fit for children',
+    isAssumption: true,
+  },
+  adult: {
+    value: 0.9,
+    unit: 'dimensionless',
+    source: 'OSHA fit-testing guidance',
+    isAssumption: false,
+  },
+  elderly: {
+    value: 0.7,
+    unit: 'dimensionless',
+    source: 'Assumed reduced fit for elderly',
+    isAssumption: true,
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -133,9 +168,34 @@ export const DEFAULT_ROOM_AREA_M2: Constant = {
 
 /** Multiplier applied to ambient PM2.5 for different commute modes. */
 export const COMMUTE_MULTIPLIERS: Record<string, Constant> = {
-  car: { value: 0.6, unit: 'dimensionless', source: 'In-vehicle filtration studies', isAssumption: false },
-  metro: { value: 0.4, unit: 'dimensionless', source: 'Subway air quality studies (enclosed stations)', isAssumption: false },
-  bus: { value: 0.7, unit: 'dimensionless', source: 'Public transit exposure studies', isAssumption: false },
-  bicycle: { value: 1.2, unit: 'dimensionless', source: 'Increased ventilation rate while cycling', isAssumption: false },
-  walk: { value: 1.0, unit: 'dimensionless', source: 'Baseline ambient exposure', isAssumption: false },
+  car: {
+    value: 0.6,
+    unit: 'dimensionless',
+    source: 'In-vehicle filtration studies',
+    isAssumption: false,
+  },
+  metro: {
+    value: 0.4,
+    unit: 'dimensionless',
+    source: 'Subway air quality studies (enclosed stations)',
+    isAssumption: false,
+  },
+  bus: {
+    value: 0.7,
+    unit: 'dimensionless',
+    source: 'Public transit exposure studies',
+    isAssumption: false,
+  },
+  bicycle: {
+    value: 1.2,
+    unit: 'dimensionless',
+    source: 'Increased ventilation rate while cycling',
+    isAssumption: false,
+  },
+  walk: {
+    value: 1.0,
+    unit: 'dimensionless',
+    source: 'Baseline ambient exposure',
+    isAssumption: false,
+  },
 };

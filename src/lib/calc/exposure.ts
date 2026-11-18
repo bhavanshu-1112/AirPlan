@@ -18,7 +18,9 @@ export function calcExposure(
   const termStrings: string[] = [];
 
   for (let i = 0; i < slots; i++) {
+    // eslint-disable-next-line security/detect-object-injection
     const c = hourlyConcentrationsUgM3[i] ?? 0;
+    // eslint-disable-next-line security/detect-object-injection
     const t = hoursPerSlot !== undefined ? (hoursPerSlot[i] ?? 1.0) : 1.0;
     total += c * t;
     termStrings.push(`${c.toFixed(1)}×${t.toFixed(1)}`);

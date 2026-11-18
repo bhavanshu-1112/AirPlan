@@ -6,32 +6,32 @@ All calculations are implemented in `src/lib/calc/` as pure functions with no I/
 
 All constants carry `{ value, unit, source, isAssumption }` metadata.
 
-| Constant | Value | Unit | Source | Assumption? |
-|---|---|---|---|---|
-| Penetration factor (P) | 0.8 | dimensionless | US EPA indoor air quality guidance | No |
-| Deposition rate (k) | 0.2 | 1/h | Lai & Nazaroff (2000) | No |
-| Air exchange – tight | 0.3 | 1/h | ASHRAE 62.2 | No |
-| Air exchange – average | 0.7 | 1/h | ASHRAE 62.2 | No |
-| Air exchange – leaky | 1.5 | 1/h | ASHRAE 62.2 | No |
-| Air exchange – open | 4.0 | 1/h | ASHRAE 62.2 / field | No |
-| N95 efficiency | 0.95 | dimensionless | NIOSH certification | No |
-| Surgical efficiency | 0.60 | dimensionless | CDC guidance | No |
-| Cloth efficiency | 0.30 | dimensionless | Clase et al. (2020) | No |
-| Mask fit – adult | 0.90 | dimensionless | OSHA fit-testing | No |
-| Mask fit – child | 0.50 | dimensionless | Assumed | **Yes** |
-| Mask fit – elderly | 0.70 | dimensionless | Assumed | **Yes** |
-| Mask fit – infant | 0.00 | dimensionless | AAP: not recommended | No |
-| Cigarette equiv. | 528 | µg·h/m³ | Berkeley Earth (22 µg/m³ × 24h) | No |
-| Uncertainty band | 0.25 | dimensionless | Conservative default | **Yes** |
-| Cooking source | 300 | µg/h | He et al. (2004) | No |
-| Incense source | 150 | µg/h | Jetter et al. (2002) | No |
-| Default ceiling | 2.7 | m | Typical residential | **Yes** |
-| Default room area | 20 | m² | Typical residential | **Yes** |
-| Commute – car | 0.6 | dimensionless | In-vehicle filtration | No |
-| Commute – metro | 0.4 | dimensionless | Subway air quality | No |
-| Commute – bus | 0.7 | dimensionless | Transit exposure | No |
-| Commute – bicycle | 1.2 | dimensionless | Increased ventilation | No |
-| Commute – walk | 1.0 | dimensionless | Baseline | No |
+| Constant               | Value | Unit          | Source                             | Assumption? |
+| ---------------------- | ----- | ------------- | ---------------------------------- | ----------- |
+| Penetration factor (P) | 0.8   | dimensionless | US EPA indoor air quality guidance | No          |
+| Deposition rate (k)    | 0.2   | 1/h           | Lai & Nazaroff (2000)              | No          |
+| Air exchange – tight   | 0.3   | 1/h           | ASHRAE 62.2                        | No          |
+| Air exchange – average | 0.7   | 1/h           | ASHRAE 62.2                        | No          |
+| Air exchange – leaky   | 1.5   | 1/h           | ASHRAE 62.2                        | No          |
+| Air exchange – open    | 4.0   | 1/h           | ASHRAE 62.2 / field                | No          |
+| N95 efficiency         | 0.95  | dimensionless | NIOSH certification                | No          |
+| Surgical efficiency    | 0.60  | dimensionless | CDC guidance                       | No          |
+| Cloth efficiency       | 0.30  | dimensionless | Clase et al. (2020)                | No          |
+| Mask fit – adult       | 0.90  | dimensionless | OSHA fit-testing                   | No          |
+| Mask fit – child       | 0.50  | dimensionless | Assumed                            | **Yes**     |
+| Mask fit – elderly     | 0.70  | dimensionless | Assumed                            | **Yes**     |
+| Mask fit – infant      | 0.00  | dimensionless | AAP: not recommended               | No          |
+| Cigarette equiv.       | 528   | µg·h/m³       | Berkeley Earth (22 µg/m³ × 24h)    | No          |
+| Uncertainty band       | 0.25  | dimensionless | Conservative default               | **Yes**     |
+| Cooking source         | 300   | µg/h          | He et al. (2004)                   | No          |
+| Incense source         | 150   | µg/h          | Jetter et al. (2002)               | No          |
+| Default ceiling        | 2.7   | m             | Typical residential                | **Yes**     |
+| Default room area      | 20    | m²            | Typical residential                | **Yes**     |
+| Commute – car          | 0.6   | dimensionless | In-vehicle filtration              | No          |
+| Commute – metro        | 0.4   | dimensionless | Subway air quality                 | No          |
+| Commute – bus          | 0.7   | dimensionless | Transit exposure                   | No          |
+| Commute – bicycle      | 1.2   | dimensionless | Increased ventilation              | No          |
+| Commute – walk         | 1.0   | dimensionless | Baseline                           | No          |
 
 ## Formulas
 
@@ -48,6 +48,7 @@ Steady-state mass balance:
 $$C_{in} = \frac{P \times a \times C_{out} + S/V}{a + k + \text{CADR}/V}$$
 
 Where:
+
 - $P$ = penetration factor (0.8)
 - $a$ = air exchange rate (1/h, by window condition)
 - $C_{out}$ = outdoor PM2.5 (µg/m³)

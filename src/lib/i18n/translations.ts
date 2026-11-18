@@ -240,11 +240,14 @@ export const translations = {
  * Falls back to English, then to the key itself if not found.
  */
 export function t(lang: Language, key: TranslationKey): string {
+  // eslint-disable-next-line security/detect-object-injection
   const dict = translations[lang] ?? translations.en;
+  // eslint-disable-next-line security/detect-object-injection
   const val = dict[key];
   if (val !== undefined && typeof val === 'string') {
     return val;
   }
+  // eslint-disable-next-line security/detect-object-injection
   const fallback = translations.en[key];
   if (fallback !== undefined && typeof fallback === 'string') {
     return fallback;

@@ -1,10 +1,6 @@
 import { NextRequest } from 'next/server';
 import { checkRateLimit } from '@/lib/security/rateLimit';
-import {
-  errorToResponse,
-  RateLimitError,
-  ValidationError,
-} from '@/lib/security/errors';
+import { errorToResponse, RateLimitError, ValidationError } from '@/lib/security/errors';
 import { validateUpload } from '@/lib/security/validateUpload';
 import auditFindingsFixture from '@/fixtures/audit-findings.json';
 

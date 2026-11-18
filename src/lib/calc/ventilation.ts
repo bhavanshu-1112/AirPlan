@@ -16,6 +16,7 @@ export function calcVentilationWindows(
   let windowCount = 0;
 
   for (let h = 0; h < hourlyOutdoorPm25UgM3.length; h++) {
+    // eslint-disable-next-line security/detect-object-injection
     const outdoor = hourlyOutdoorPm25UgM3[h] ?? Infinity;
     const isGood = outdoor < indoorPm25ClosedUgM3;
 

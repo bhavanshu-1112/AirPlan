@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
+import NavBar from '@/components/NavBar';
 import './globals.css';
 
 export const metadata: Metadata = {
   title: 'AirPlan — Urban Air Quality Assistant',
   description:
-    'Every evening, AirPlan turns tomorrow\'s smog forecast into a plan for your family: when to walk, which mask, when to open a window.',
+    "Every evening, AirPlan turns tomorrow's smog forecast into a plan for your family: when to walk, which mask, when to open a window.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -17,24 +18,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Skip to content
         </a>
-        <header role="banner" className="border-b border-gray-200 dark:border-gray-800">
-          <nav aria-label="Main navigation" className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
-            <span className="text-xl font-bold" aria-label="AirPlan home">
-              🌬️ AirPlan
-            </span>
-          </nav>
+        <header role="banner" className="relative border-b border-gray-200 dark:border-gray-800">
+          <NavBar />
         </header>
         <main id="main-content" role="main" className="mx-auto max-w-4xl px-4 py-6">
           {children}
         </main>
-        <footer role="contentinfo" className="border-t border-gray-200 px-4 py-4 text-center text-sm text-gray-500 dark:border-gray-800 dark:text-gray-400">
+        <footer
+          role="contentinfo"
+          className="border-t border-gray-200 px-4 py-4 text-center text-sm text-gray-500 dark:border-gray-800 dark:text-gray-400"
+        >
           <p>
-            AirPlan is not medical advice. Data is indicative. Consult a physician for health decisions.
+            AirPlan is not medical advice. Data is indicative. Consult a physician for health
+            decisions.
           </p>
-          <p className="mt-1">
-            Privacy: We collect minimal data. No analytics. No tracking.{' '}
-            <span className="underline">See docs/SECURITY.md</span>.
-          </p>
+          <p className="mt-1">Privacy: We collect minimal data. No analytics. No tracking.</p>
         </footer>
       </body>
     </html>
