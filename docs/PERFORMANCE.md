@@ -1,28 +1,53 @@
-# Performance
+# AirPlan — Performance
 
-> To be completed with measured numbers in Phase 10.
+## Design Principles
 
-## Budgets
+1. **Minimal bundle:** No heavy frameworks (no LangChain, no chart libraries). Direct Anthropic SDK + Zod + Tailwind.
+2. **Server-side where possible:** Myth Buster, AQI Badge, Member Chip, and Loading Skeleton are server components.
+3. **Cache everything:** TTL cache on forecast (30 min) and geocoding (24 h) with in-flight dedup.
+4. **Demo mode:** Fully offline from fixtures — zero network latency.
 
-| Metric | Target | Measured | Status |
-|---|---|---|---|
-| Calc layer per plan | < 5 ms | TBD | — |
-| Cached plan response | < 150 ms | TBD | — |
-| First load JS (main route, gzipped) | < 150 kB | TBD | — |
+## Caching Strategy
 
-## Efficiency Strategies
+| Data | TTL | Dedup |
+|---|---|---|
+| Air quality forecast | 30 minutes | Yes (in-flight) |
+| Geocoding results | 24 hours | Yes (in-flight) |
+| Household data | N/A (file read) | N/A |
 
-1. **LLM calls:** One planning call per household per forecast. Tool-use loop capped at 6 iterations.
-2. **Prompt caching:** `cache_control` on static system prompt and tool definitions.
-3. **Data caching:** In-memory TTL cache — forecast 30 min, geocoding 24 h.
-4. **Calc layer:** Pure functions, O(hours × members), memoized scenario runs.
-5. **Frontend:** Server components, lazy-loaded audit/myth panels, client-side image downscale to 1280 px max.
-6. **Bundle:** No heavy UI libraries, skeletons instead of blocking spinners.
+The `TTLCache` class in `src/lib/data/cache.ts` supports:
+- Time-based expiry
+- In-flight request deduplication (concurrent requests for the same key share one fetch)
 
-## Running Benchmarks
+## Calculation Layer Performance
 
-```bash
-npm run bench
-```
+All calc functions are pure and synchronous — no I/O, no async overhead:
+- `calcExposure`: O(n) where n = hourly data points (~72 for 3-day forecast)
+- `calcIndoorConcentration`: O(1) — single formula evaluation
+- `calcMaskEffect`: O(1)
+- `calcVentilationWindows`: O(n) sliding window
+- `calcCommuteSwap`: O(1)
+- `calcCigaretteEquivalent`: O(1)
 
-> Will print calc layer timing results when implemented.
+Benchmark target: entire calc suite < 1ms for a typical household.
+
+## Bundle Size
+
+Target: < 500 kB raw JS (≈ 150 kB gzipped) for the main route.
+
+Checked by `npm run verify` which runs `next build` and measures total JS in `.next/static/`.
+
+## Network Requests
+
+| Page | API Calls | Notes |
+|---|---|---|
+| Home | 0 | Static content + myths.json (bundled) |
+| Setup | 1+ geocode | Debounced at 300ms |
+| Plan | 1 plan POST | Single request, includes all calc results |
+| Audit | 1 audit POST | Image upload, single response |
+
+## Image Handling
+
+- Client-side downscale to max 1280px before upload (reduces transfer size)
+- Max upload size: 5 MB
+- No image storage — analyzed and discarded (unless DEMO_MODE)

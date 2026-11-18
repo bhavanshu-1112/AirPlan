@@ -1,87 +1,94 @@
-# Calculations Reference
+# AirPlan — Calculations Reference
 
-> All formulas used in AirPlan's calculation layer. Every constant has a source comment and an `isAssumption` flag in `src/lib/calc/constants.ts`.
+All calculations are implemented in `src/lib/calc/` as pure functions with no I/O. Every function returns a `CalcResult` with `{ central, low, high, formula, inputs }`.
 
-## Exposure (µg/m³·h)
+## Constants (`constants.ts`)
 
-```
-E = Σ_h (C_h × t_h)
-```
+All constants carry `{ value, unit, source, isAssumption }` metadata.
+
+| Constant | Value | Unit | Source | Assumption? |
+|---|---|---|---|---|
+| Penetration factor (P) | 0.8 | dimensionless | US EPA indoor air quality guidance | No |
+| Deposition rate (k) | 0.2 | 1/h | Lai & Nazaroff (2000) | No |
+| Air exchange – tight | 0.3 | 1/h | ASHRAE 62.2 | No |
+| Air exchange – average | 0.7 | 1/h | ASHRAE 62.2 | No |
+| Air exchange – leaky | 1.5 | 1/h | ASHRAE 62.2 | No |
+| Air exchange – open | 4.0 | 1/h | ASHRAE 62.2 / field | No |
+| N95 efficiency | 0.95 | dimensionless | NIOSH certification | No |
+| Surgical efficiency | 0.60 | dimensionless | CDC guidance | No |
+| Cloth efficiency | 0.30 | dimensionless | Clase et al. (2020) | No |
+| Mask fit – adult | 0.90 | dimensionless | OSHA fit-testing | No |
+| Mask fit – child | 0.50 | dimensionless | Assumed | **Yes** |
+| Mask fit – elderly | 0.70 | dimensionless | Assumed | **Yes** |
+| Mask fit – infant | 0.00 | dimensionless | AAP: not recommended | No |
+| Cigarette equiv. | 528 | µg·h/m³ | Berkeley Earth (22 µg/m³ × 24h) | No |
+| Uncertainty band | 0.25 | dimensionless | Conservative default | **Yes** |
+| Cooking source | 300 | µg/h | He et al. (2004) | No |
+| Incense source | 150 | µg/h | Jetter et al. (2002) | No |
+| Default ceiling | 2.7 | m | Typical residential | **Yes** |
+| Default room area | 20 | m² | Typical residential | **Yes** |
+| Commute – car | 0.6 | dimensionless | In-vehicle filtration | No |
+| Commute – metro | 0.4 | dimensionless | Subway air quality | No |
+| Commute – bus | 0.7 | dimensionless | Transit exposure | No |
+| Commute – bicycle | 1.2 | dimensionless | Increased ventilation | No |
+| Commute – walk | 1.0 | dimensionless | Baseline | No |
+
+## Formulas
+
+### 1. Total Exposure (`exposure.ts`)
+
+$$E = \sum_{h} C_h \times t_h$$
+
+Where $C_h$ is the concentration in hour $h$ (µg/m³) and $t_h$ is the duration (hours, default 1).
+
+### 2. Indoor Concentration (`indoor.ts`)
+
+Steady-state mass balance:
+
+$$C_{in} = \frac{P \times a \times C_{out} + S/V}{a + k + \text{CADR}/V}$$
 
 Where:
-- `C_h` = PM2.5 concentration in the place occupied during hour `h` (µg/m³)
-- `t_h` = time spent in that place during hour `h` (hours, typically 1.0)
-- Places: outdoor, indoor, in transit
+- $P$ = penetration factor (0.8)
+- $a$ = air exchange rate (1/h, by window condition)
+- $C_{out}$ = outdoor PM2.5 (µg/m³)
+- $S$ = indoor source emission (µg/h)
+- $V$ = room volume (m³) = area × ceiling height
+- $k$ = deposition rate (0.2/h)
+- CADR = clean air delivery rate (m³/h)
 
-## Indoor Concentration (Steady State)
+### 3. Mask Effect (`mask.ts`)
 
-```
-C_in = (P × a × C_out + S/V) / (a + k + CADR/V)
-```
+$$C_{breathed} = C_{ambient} \times (1 - \eta \times f)$$
 
-Where:
-- `P` = penetration factor (default 0.8) — fraction of outdoor PM2.5 that enters
-- `a` = air exchange rate (per hour):
-  - Tight windows: 0.3/h
-  - Average windows: 0.7/h
-  - Leaky windows: 1.5/h
-  - Open window: 4.0/h
-- `C_out` = outdoor PM2.5 concentration (µg/m³)
-- `k` = deposition rate (default 0.2/h)
-- `CADR` = Clean Air Delivery Rate of purifier (m³/h), 0 if none
-- `V` = room volume (m³) = area × ceiling height
-- `S` = indoor source emission rate (µg/h), e.g. cooking or incense (**assumption**)
+Where $\eta$ is filtration efficiency and $f$ is fit factor (by age group). Infants: mask benefit set to zero (safety concern).
 
-## Mask Effectiveness
+### 4. Cigarette Equivalent (`cigarettes.ts`)
 
-```
-C_breathed = C_ambient × (1 - filtration_efficiency × fit_factor)
-```
+$$\text{cigarettes} = \frac{E}{528}$$
 
-| Mask Type | Filtration Efficiency | Fit Factor | Effective Reduction |
-|---|---|---|---|
-| N95 | 0.95 | 0.80 | 76% |
-| Surgical | 0.40 | 1.00 | 40% |
-| Cloth | 0.20 | 1.00 | 20% |
-| None | 0.00 | 0.00 | 0% |
+Based on Berkeley Earth rule of thumb: 22 µg/m³ daily average ≈ 1 cigarette/day. Always labeled "rough analogy".
 
-**Infants:** Masks are not recommended for infants (suffocation risk). The system computes zero mask benefit and explains why.
+### 5. Ventilation Windows (`ventilation.ts`)
 
-## Cigarette Equivalent
+Finds contiguous hours where outdoor PM2.5 < indoor PM2.5 (closed windows), with minimum duration of 1 hour. Returns sorted list by average PM2.5 (best first).
 
-```
-cigarettes = (total_exposure_ug_m3_h) / (22 × 24)
-```
+### 6. Commute Swap (`commuteSwap.ts`)
 
-Based on Berkeley Earth rule of thumb: 22 µg/m³ PM2.5 sustained over 24 hours ≈ 1 cigarette. **Always labeled as "rough analogy".**
+$$\Delta E = C_{ambient} \times t_{commute} \times (m_{current} - m_{alternative})$$
 
-## Ventilation Window
+Where $m$ is the commute mode multiplier.
 
-Best contiguous hours where:
-1. Outdoor PM2.5 < Indoor PM2.5 (steady state, windows closed)
-2. Duration ≥ 30 minutes
-3. If no such window exists: "keep windows closed today"
+### 7. Uncertainty (`uncertainty.ts`)
 
-## Uncertainty
+$$\text{low} = \text{central} \times (1 - b)$$
+$$\text{high} = \text{central} \times (1 + b)$$
 
-- Default forecast uncertainty band: ±25% (**assumption**)
-- Beyond 24h ahead: band widens by 10% per additional 12h
-- Propagated through all calculations: `low = central × (1 - band)`, `high = central × (1 + band)`
-- Every result returns `{ central, low, high, formula, inputs }`
+Default band $b$ = 0.25 (±25%). Widened by +10% per 12 hours beyond 24 hours ahead.
 
-## Before/After Comparison
+## Property Invariants (tested)
 
-Each recommendation runs:
-1. **Baseline scenario:** current behavior through the calc functions
-2. **Recommended scenario:** recommended behavior through the same functions
-3. **Delta:** `baseline.central - recommended.central` = exposure saved
-
-## Sources
-
-- Indoor air model: based on mass-balance steady-state model (Nazaroff & Cass, 1986)
-- Mask filtration: WHO guidelines for PM2.5 protection
-- Cigarette equivalence: Berkeley Earth (berkeleyearth.org)
-- Penetration factor: US EPA indoor air quality guidance
-- Air exchange rates: ASHRAE standards (simplified ranges)
-
-> Constants marked `isAssumption: true` are estimates that could be refined with better data. They are always disclosed in the UI.
+1. Better mask never increases exposure
+2. CADR = 0 is equivalent to no purifier
+3. Ventilation window never recommended when outdoor > indoor
+4. low ≤ central ≤ high for all CalcResults
+5. Zero PM2.5 → zero exposure

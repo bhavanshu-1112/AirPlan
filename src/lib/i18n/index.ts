@@ -1,2 +1,1 @@
-// Placeholder — will be implemented in Phase 7
-export {};
+export { t, translations, type Language, type TranslationKey } from './translations';

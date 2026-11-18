@@ -1,64 +1,59 @@
-# Accessibility (WCAG 2.2 AA)
+# AirPlan — Accessibility
 
-> To be completed with measured results in Phase 9.
+## Approach
 
-## Automated Checks
-- `eslint-plugin-jsx-a11y` — lint-time (zero warnings required)
-- `jest-axe` — component-level (zero violations required)
-- `@axe-core/playwright` — page-level E2E (zero violations required)
+AirPlan follows WCAG 2.1 AA guidelines. Accessibility is built into every component, not bolted on after.
 
-## Implementation Checklist
+## Structural Accessibility
 
-### Structure
-- [ ] Semantic HTML landmarks: `header`, `nav`, `main`, `footer`
-- [ ] One `h1` per page, logical heading order
-- [ ] Visible "Skip to content" link
+- **Skip-to-content link:** First focusable element in `layout.tsx`, visually hidden until focused
+- **Semantic HTML:** `<header>`, `<nav>`, `<main>`, `<footer>` landmarks with ARIA roles
+- **Heading hierarchy:** Every page has a single `<h1>`, sections use `<h2>`+, with `aria-labelledby`
+- **Language attribute:** `<html lang="en">` updated dynamically when switching to Hindi
 
-### Forms
-- [ ] All controls have programmatic labels
-- [ ] Helper text via `aria-describedby`
-- [ ] Errors announced with `role="alert"` and linked to field
-- [ ] No placeholder-only labels
+## Form Accessibility (`HouseholdForm.tsx`)
 
-### Keyboard
-- [ ] Logical tab order
-- [ ] Visible focus ring (≥ 3:1 contrast)
-- [ ] No keyboard traps
-- [ ] "Show the math" expander: real `button` with `aria-expanded`
-- [ ] Language toggle: real `button` with `aria-pressed`
+- Every input has a visible `<label>` linked via `htmlFor`/`id`
+- Error messages use `role="alert"` for screen reader announcement
+- Error text linked to inputs via `aria-describedby`
+- Minimum touch target: 44×44px on all interactive elements
+- Required fields marked with `aria-required`
 
-### Color and Contrast
-- [ ] AQI never conveyed by color alone: text + icon + pattern/label
-- [ ] All text ≥ 4.5:1 contrast (3:1 for large text and UI components)
-- [ ] Contrast verified over token palette
+## Color & Visual
 
-### Dynamic Content
-- [ ] `aria-live="polite"` for plan ready, audit complete, errors
-- [ ] Loading states have accessible text
+- **Never color-only:** AQI badges use color + icon + text pattern (e.g., ✓ Good, ⚠ Moderate, ✕ Unhealthy)
+- **Confidence bars** include numeric text values alongside visual bars
+- **Dark mode** support via `prefers-color-scheme` and Tailwind dark: variants
+- **Contrast:** Text colors meet 4.5:1 ratio (gray-900 on white, gray-100 on gray-950)
 
-### Language
-- [ ] `<html lang>` set dynamically (`en` / `hi`)
-- [ ] Mixed-language fragments marked with `lang`
-- [ ] Font stack renders Devanagari properly
-- [ ] No fixed-size containers that clip Hindi text
+## Interactive Components
 
-### Responsive
-- [ ] Touch targets ≥ 44×44 px
-- [ ] Layout works at 320 px width
-- [ ] 200% zoom without horizontal scroll
-- [ ] `prefers-reduced-motion` respected
-- [ ] `prefers-color-scheme` respected
+- **ImpactCard "Show the math":** Uses `aria-expanded` and `aria-controls` for the expandable section
+- **LanguageToggle:** Uses `aria-pressed` for toggle state
+- **MythBuster:** Uses native `<details>`/`<summary>` for expand/collapse (natively accessible)
+- **Loading states:** `aria-busy="true"`, `role="status"`, visually hidden "Loading..." text
 
-### Images
-- [ ] Upload previews have alt text
-- [ ] Findings described in text, not only via photo
-- [ ] Charts have text summary + data table alternative
+## Motion
 
-### Writing
-- [ ] Short sentences, plain language
-- [ ] No jargon without inline explanation
+- **`prefers-reduced-motion`:** Global CSS rule disables all animations and transitions when user prefers reduced motion
+- Loading skeleton uses `motion-reduce:animate-none`
 
-## Manual Checklist (not automated)
-- [ ] Keyboard-only navigation test (all flows reachable)
-- [ ] Screen reader test notes (NVDA/VoiceOver)
-- [ ] High-contrast mode verification
+## Internationalization
+
+- Full Hindi (Devanagari) support with `Noto Sans Devanagari` font
+- `<html lang>` attribute updates on language toggle
+- All UI strings available in both English and Hindi
+
+## Testing
+
+- **jest-axe:** Component-level accessibility testing (axe-core rules)
+- **@axe-core/playwright:** Page-level accessibility testing in E2E
+- **eslint-plugin-jsx-a11y:** Lint-time accessibility rule enforcement
+- Zero violations target in `npm run verify`
+
+## Keyboard Navigation
+
+- All interactive elements focusable via Tab
+- Skip-to-content link on first Tab press
+- Focus ring visible on all focusable elements (Tailwind `focus:ring-2`)
+- No keyboard traps
