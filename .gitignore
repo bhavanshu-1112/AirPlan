@@ -38,6 +38,7 @@ yarn-error.log*
 
 # uploaded files
 uploads/
+.tmp/
 
 # turbopack
 .turbo/

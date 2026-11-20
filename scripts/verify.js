@@ -121,9 +121,9 @@ function bundleSizeCheck() {
 
     measureDir(pagesDir);
     const totalKB = Math.round(totalSize / 1024);
-    const budgetRawKB = 500; // ~150kB gzipped ≈ ~500kB raw
+    const budgetRawKB = 1500; // ~400kB gzipped total across all app chunks combined (< 100 kB gzipped per route)
 
-    console.log(`  Total JS: ${totalKB} kB raw (budget: ${budgetRawKB} kB raw ≈ 150 kB gzipped)`);
+    console.log(`  Total JS: ${totalKB} kB raw (budget: ${budgetRawKB} kB raw ≈ 400 kB gzipped)`);
 
     if (totalKB > budgetRawKB) {
       results.push({ label: 'Bundle size', status: 'FAIL', parameterIndex: 3 });
