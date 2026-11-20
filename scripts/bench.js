@@ -17,9 +17,15 @@ try {
   // Compile calc files to .tmp/bench if needed
   if (!fs.existsSync(path.join(tmpDir, 'exposure.js'))) {
     process.stdout.write('Compiling calculation modules...\n');
+    const calcDir = path.resolve(__dirname, '..', 'src', 'lib', 'calc');
+    const calcFiles = fs
+      .readdirSync(calcDir)
+      .filter((f) => f.endsWith('.ts'))
+      .map((f) => `src/lib/calc/${f}`)
+      .join(' ');
     execSync(
-      'npx tsc src/lib/calc/*.ts --outDir .tmp/bench --module commonjs --target es2020 --skipLibCheck',
-      { cwd: path.resolve(__dirname, '..'), stdio: 'ignore' },
+      `npx tsc ${calcFiles} --outDir .tmp/bench --module commonjs --target es2020 --skipLibCheck`,
+      { cwd: path.resolve(__dirname, '..'), stdio: 'inherit' },
     );
   }
 
