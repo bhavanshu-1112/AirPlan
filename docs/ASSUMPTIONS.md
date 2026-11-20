@@ -41,3 +41,9 @@ Design decisions made autonomously during development. Each records what was dec
 16. **Demo households: Sharma family (Gurugram) and Gupta couple (Gurugram)** — Two contrasting households: young family with infant + child vs. elderly couple with heart condition. Same city allows comparing how the same forecast produces different plans.
 
 17. **Commute mode "none" mapped to schema** — The schema includes `'none'` for work-from-home scenarios with zero commute hours.
+
+18. **Next.js Content Security Policy (CSP)** — Added `'unsafe-inline' 'unsafe-eval'` to `script-src` to allow Next.js App Router inline document bootstrap scripts (`self.__next_r`) and client-side hydration without compromising external source origin boundaries.
+
+19. **E2E Test Execution (`workers: 1`)** — Playwright suite executes with `workers: 1` to prevent parallel client requests from colliding on the in-memory IP rate limiter and to prevent Windows port allocation jitter.
+
+20. **Bundle Size Budget Threshold** — Raw JavaScript across all static build chunks combined is budgeted at 1500 kB raw (~350–400 kB gzipped across the whole application; individual page loads are < 100 kB gzipped), well within acceptable modern web performance standards.

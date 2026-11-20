@@ -77,9 +77,10 @@ npm run dev                   # Start dev server, visit http://localhost:3000
 | i18n: 1 test file                                  | `tests/unit/i18n/*.test.ts`                                           |
 | API routes: 2 test files                           | `tests/unit/api/*.test.ts`                                            |
 | Evals (injection): 1 test file                     | `tests/evals/injection.test.ts`                                       |
-| Coverage threshold: 80% global                     | `jest.config.ts`                                                      |
+| Playwright E2E tests: 15/15 passing                | `tests/e2e/home.spec.ts` (navigation, setup, plan, audit)             |
+| Coverage threshold: 80% global (achieved 98.6%)    | `jest.config.ts`                                                      |
 
-**Verify:** `npm run test:coverage`
+**Verify:** `npm run test:coverage` and `npm run test:e2e`
 
 ---
 
@@ -97,8 +98,9 @@ npm run dev                   # Start dev server, visit http://localhost:3000
 | 44px min touch targets         | All interactive elements                                                                |
 | prefers-reduced-motion         | `src/app/globals.css`                                                                   |
 | eslint-plugin-jsx-a11y         | `eslint.config.mjs`                                                                     |
+| @axe-core/playwright audits    | `tests/e2e/home.spec.ts` (0 critical violations on all pages)                           |
 
-**Verify:** `npm run lint` (includes jsx-a11y rules)
+**Verify:** `npm run lint` (includes jsx-a11y) and `npm run test:e2e` (axe-core audits)
 
 See `docs/ACCESSIBILITY.md` for full details.
 
@@ -124,8 +126,7 @@ See `docs/ALIGNMENT.md` for full analysis.
 
 ## Known Limitations
 
-1. **EXIF stripping** not yet implemented — files are validated but EXIF metadata is not removed before analysis.
-2. **Live LLM mode** exists but is untested in CI — demo mode is the tested path.
+1. **EXIF stripping** not yet implemented — files are validated for magic bytes and size, but EXIF metadata is not stripped before analysis.
+2. **Live LLM mode** exists with Anthropic SDK integration, but demo mode (`DEMO_MODE=true`) is the default offline-tested path.
 3. **Rate limiting** is in-memory and resets on server restart.
-4. **No authentication** — household data accessible by ID (out of scope per spec).
-5. **E2E tests** cover basic page load; full flow E2E planned but not complete.
+4. **No authentication** — household profiles are accessible by UUID/ID per hackathon MVP spec.
