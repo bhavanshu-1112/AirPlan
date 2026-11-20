@@ -52,7 +52,8 @@ export async function POST(request: NextRequest): Promise<Response> {
     const forwarded = request.headers.get('x-forwarded-for');
     const ip = (forwarded ? forwarded.split(',')[0]?.trim() : null) || 'anonymous';
 
-    if (!checkRateLimit(ip, 10, 60000).allowed) {
+    const maxReqs = process.env['RATE_LIMIT_MAX'] ? Number(process.env['RATE_LIMIT_MAX']) : 10;
+    if (!checkRateLimit(ip, maxReqs, 60000).allowed) {
       throw new RateLimitError();
     }
 

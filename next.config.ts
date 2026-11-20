@@ -2,7 +2,7 @@ import type { NextConfig } from 'next';
 
 const cspDirectives = [
   "default-src 'self'",
-  "script-src 'self'",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "font-src 'self'",
@@ -19,7 +19,7 @@ const securityHeaders = [
   { key: 'X-Frame-Options', value: 'DENY' },
   {
     key: 'Permissions-Policy',
-    value: 'camera=(), microphone=(), geolocation=(self), interest-cohort=()',
+    value: 'camera=(), microphone=(), geolocation=(self)',
   },
   // Note: HSTS should be enabled in production behind HTTPS
   // { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
