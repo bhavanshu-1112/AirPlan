@@ -12,6 +12,7 @@ test-results/
 .next/
 out/
 build/
+*.tsbuildinfo
 
 # misc
 .DS_Store
@@ -39,6 +40,7 @@ yarn-error.log*
 # uploaded files
 uploads/
 .tmp/
+data/
 
 # turbopack
 .turbo/

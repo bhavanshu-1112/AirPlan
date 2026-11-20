@@ -27,23 +27,24 @@ async function resolveHouseholdAndForecast(householdId: string): Promise<{
   household: Household;
   forecast: ForecastResponse;
 }> {
-  if (process.env['DEMO_MODE'] === 'true') {
-    const householdsMap = householdsFixture as Record<string, Household>;
-    // eslint-disable-next-line security/detect-object-injection
-    const household = householdsMap[householdId];
-    if (!household) {
-      throw new NotFoundError(`Household ${householdId} not found`);
-    }
-    const forecast = ForecastResponseSchema.parse(forecastFixture);
-    return { household, forecast };
+  const householdsMap = householdsFixture as Record<string, Household>;
+  // eslint-disable-next-line security/detect-object-injection
+  let household: Household | undefined = householdsMap[householdId];
+
+  if (!household) {
+    const store = new JsonHouseholdStore();
+    household = await store.get(householdId);
   }
 
-  const store = new JsonHouseholdStore();
-  const household = await store.get(householdId);
   if (!household) {
     throw new NotFoundError(`Household ${householdId} not found`);
   }
-  const forecast = await fetchForecast(household.location.latitude, household.location.longitude);
+
+  const forecast =
+    process.env['DEMO_MODE'] === 'true'
+      ? ForecastResponseSchema.parse(forecastFixture)
+      : await fetchForecast(household.location.latitude, household.location.longitude);
+
   return { household, forecast };
 }
 
