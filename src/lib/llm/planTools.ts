@@ -1,3 +1,5 @@
+import { executeTool, MAX_TOOL_ITERATIONS } from './planAgent';
+
 /** Tool definitions for the planning agent. */
 export const PLAN_TOOLS = [
   {
@@ -81,3 +83,18 @@ export const PLAN_TOOLS = [
     },
   },
 ] as const;
+
+/** Convert tool definitions to Google Gemini functionDeclarations format. */
+export function getGeminiFunctionDeclarations() {
+  return PLAN_TOOLS.map((tool) => ({
+    name: tool.name,
+    description: tool.description,
+    parameters: {
+      type: 'OBJECT',
+      properties: tool.input_schema.properties,
+      required: [...tool.input_schema.required],
+    },
+  }));
+}
+
+export { executeTool, MAX_TOOL_ITERATIONS };

@@ -11,7 +11,7 @@ const CATEGORY_MAP: ReadonlyMap<string, BadgeConfig> = new Map<string, BadgeConf
       label: 'Good',
       icon: '✓',
       className:
-        'bg-green-100 text-green-900 border-2 border-solid border-green-600 dark:bg-green-950 dark:text-green-200 dark:border-green-400',
+        'bg-emerald-50 text-emerald-800 border-2 border-solid border-emerald-500 shadow-sm dark:bg-emerald-950/70 dark:text-emerald-200 dark:border-emerald-500/80',
     },
   ],
   [
@@ -20,7 +20,7 @@ const CATEGORY_MAP: ReadonlyMap<string, BadgeConfig> = new Map<string, BadgeConf
       label: 'Moderate',
       icon: '⚠',
       className:
-        'bg-yellow-100 text-yellow-950 border-2 border-dashed border-yellow-600 dark:bg-yellow-950 dark:text-yellow-200 dark:border-yellow-400',
+        'bg-amber-50 text-amber-900 border-2 border-dashed border-amber-500 shadow-sm dark:bg-amber-950/70 dark:text-amber-200 dark:border-amber-500/80',
     },
   ],
   [
@@ -29,7 +29,7 @@ const CATEGORY_MAP: ReadonlyMap<string, BadgeConfig> = new Map<string, BadgeConf
       label: 'Unhealthy for Sensitive Groups',
       icon: '△',
       className:
-        'bg-orange-100 text-orange-950 border-2 border-dotted border-orange-600 dark:bg-orange-950 dark:text-orange-200 dark:border-orange-400',
+        'bg-orange-50 text-orange-950 border-2 border-dotted border-orange-500 shadow-sm dark:bg-orange-950/70 dark:text-orange-200 dark:border-orange-500/80',
     },
   ],
   [
@@ -38,7 +38,7 @@ const CATEGORY_MAP: ReadonlyMap<string, BadgeConfig> = new Map<string, BadgeConf
       label: 'Unhealthy',
       icon: '✕',
       className:
-        'bg-red-100 text-red-950 border-4 border-double border-red-600 dark:bg-red-950 dark:text-red-200 dark:border-red-400',
+        'bg-red-50 text-red-950 border-2 border-solid ring-1 ring-red-400 border-red-600 shadow-sm dark:bg-red-950/70 dark:text-red-200 dark:border-red-500/80',
     },
   ],
   [
@@ -47,7 +47,7 @@ const CATEGORY_MAP: ReadonlyMap<string, BadgeConfig> = new Map<string, BadgeConf
       label: 'Very Unhealthy',
       icon: '⊗',
       className:
-        'bg-purple-100 text-purple-950 border-2 border-dashed ring-2 ring-purple-500 border-purple-600 dark:bg-purple-950 dark:text-purple-200 dark:border-purple-400 dark:ring-purple-400',
+        'bg-purple-50 text-purple-950 border-2 border-solid ring-2 ring-purple-400 border-purple-600 shadow-sm dark:bg-purple-950/70 dark:text-purple-200 dark:border-purple-400',
     },
   ],
   [
@@ -56,7 +56,7 @@ const CATEGORY_MAP: ReadonlyMap<string, BadgeConfig> = new Map<string, BadgeConf
       label: 'Hazardous',
       icon: '☠',
       className:
-        'bg-[#7e0023] text-white border-4 border-solid ring-2 ring-rose-900 border-[#4d0015] dark:bg-[#7e0023] dark:text-white dark:border-rose-400 dark:ring-rose-300',
+        'bg-[#7e0023] text-white border-2 border-solid ring-2 ring-rose-500 border-rose-900 shadow-sm dark:bg-[#7e0023] dark:text-white dark:border-rose-400 dark:ring-rose-300',
     },
   ],
 ]);
@@ -70,10 +70,32 @@ const UNKNOWN_CONFIG: BadgeConfig = {
 
 function getBadgeConfig(band: string): BadgeConfig {
   const normalized = band.trim().toLowerCase().replace(/[-_]/g, ' ').replace(/\s+/g, ' ');
-  const matched = CATEGORY_MAP.get(normalized);
-  if (matched !== undefined) {
-    return matched;
+  const directMatch = CATEGORY_MAP.get(normalized);
+  if (directMatch !== undefined) {
+    return directMatch;
   }
+
+  // Priority check for substring matches (handles "Very Unhealthy (AQI 250–300)", etc.)
+  const priorityKeys = [
+    'hazardous',
+    'very unhealthy',
+    'unhealthy for sensitive groups',
+    'unhealthy',
+    'moderate',
+    'good',
+  ];
+  for (const key of priorityKeys) {
+    if (normalized.includes(key)) {
+      const config = CATEGORY_MAP.get(key);
+      if (config) {
+        return {
+          ...config,
+          label: band.trim(),
+        };
+      }
+    }
+  }
+
   const fallbackLabel = band.trim() || UNKNOWN_CONFIG.label;
   return {
     label: fallbackLabel,
@@ -89,12 +111,12 @@ export interface AqiBadgeProps {
 
 export function AqiBadge({ band, className }: AqiBadgeProps) {
   const { label, icon, className: styleClasses } = getBadgeConfig(band);
-  const baseClasses = `inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-sm font-semibold ${styleClasses}`;
+  const baseClasses = `inline-flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-sm font-semibold tracking-wide ${styleClasses}`;
   const fullClassName = className !== undefined ? `${baseClasses} ${className}` : baseClasses;
 
   return (
     <span className={fullClassName} aria-label={label}>
-      <span aria-hidden="true" className="select-none font-bold">
+      <span aria-hidden="true" className="select-none font-bold text-base">
         {icon}
       </span>
       <span>{label}</span>

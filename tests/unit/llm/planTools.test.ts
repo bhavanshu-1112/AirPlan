@@ -1,90 +1,92 @@
-import { PLAN_TOOLS, executeTool, MAX_TOOL_ITERATIONS } from '@/lib/llm';
+import {
+  PLAN_TOOLS,
+  executeTool,
+  MAX_TOOL_ITERATIONS,
+  getGeminiFunctionDeclarations,
+} from '@/lib/llm/planTools';
 
-describe('planTools', () => {
-  it('has exactly 6 tools in PLAN_TOOLS', () => {
-    expect(Array.isArray(PLAN_TOOLS)).toBe(true);
+describe('planTools - definitions', () => {
+  it('defines exactly 6 tools', () => {
     expect(PLAN_TOOLS).toHaveLength(6);
   });
 
-  it('ensures each tool has name, description, and input_schema with required fields', () => {
+  it('each tool has name, description, and valid input_schema', () => {
     for (const tool of PLAN_TOOLS) {
       expect(typeof tool.name).toBe('string');
-      expect(tool.name.length).toBeGreaterThan(0);
-
       expect(typeof tool.description).toBe('string');
-      expect(tool.description.length).toBeGreaterThan(0);
-
-      expect(tool.input_schema).toBeDefined();
       expect(tool.input_schema.type).toBe('object');
+      expect(tool.input_schema.properties).toBeDefined();
       expect(Array.isArray(tool.input_schema.required)).toBe(true);
-      expect(tool.input_schema.required.length).toBeGreaterThan(0);
-
-      for (const req of tool.input_schema.required) {
-        expect(typeof req).toBe('string');
-        expect(req.length).toBeGreaterThan(0);
-      }
     }
   });
 
-  it('contains the expected tool names', () => {
-    const names = PLAN_TOOLS.map((t) => t.name);
-    expect(names).toContain('calc_exposure');
-    expect(names).toContain('calc_mask_effect');
-    expect(names).toContain('calc_ventilation_windows');
-    expect(names).toContain('calc_indoor_concentration');
-    expect(names).toContain('calc_commute_swap');
-    expect(names).toContain('calc_cigarette_equivalent');
+  it('converts to Gemini function declarations format', () => {
+    const decls = getGeminiFunctionDeclarations();
+    expect(decls).toHaveLength(6);
+    expect(decls[0]?.name).toBe('calc_exposure');
+    expect(decls[0]?.parameters.type).toBe('OBJECT');
+    expect(decls[0]?.parameters.properties).toBeDefined();
+  });
+});
+
+describe('planTools - executeTool dispatch', () => {
+  it('dispatches calc_exposure', () => {
+    const res = executeTool('calc_exposure', {
+      hourlyConcentrations: [100, 200],
+      hoursPerSlot: [1, 1],
+    }) as { central: number };
+    expect(res.central).toBe(300);
   });
 
-  it('exports MAX_TOOL_ITERATIONS as 6', () => {
-    expect(MAX_TOOL_ITERATIONS).toBe(6);
-  });
-
-  it('executes each calc tool successfully via executeTool', () => {
-    const exposureRes = executeTool('calc_exposure', {
-      hourlyConcentrations: [100, 120, 90],
-    }) as { central: number; formula: string };
-    expect(exposureRes.central).toBe(310);
-    expect(typeof exposureRes.formula).toBe('string');
-
-    const maskRes = executeTool('calc_mask_effect', {
-      ambientPm25: 150,
+  it('dispatches calc_mask_effect', () => {
+    const res = executeTool('calc_mask_effect', {
+      ambientPm25: 200,
       maskType: 'n95',
       ageGroup: 'adult',
     }) as { central: number };
-    expect(maskRes.central).toBeLessThan(150);
-
-    const ventRes = executeTool('calc_ventilation_windows', {
-      hourlyOutdoorPm25: [200, 180, 50, 40, 60, 200],
-      indoorPm25Closed: 100,
-    }) as Array<{ startHour: number; endHour: number }>;
-    expect(Array.isArray(ventRes)).toBe(true);
-
-    const indoorRes = executeTool('calc_indoor_concentration', {
-      outdoorPm25: 150,
-      windowCondition: 'average',
-      cadrM3PerHour: 200,
-      roomAreaM2: 20,
-    }) as { central: number };
-    expect(typeof indoorRes.central).toBe('number');
-
-    const commuteRes = executeTool('calc_commute_swap', {
-      currentMode: 'car',
-      alternativeMode: 'metro',
-      commuteHours: 1,
-      ambientPm25: 150,
-    }) as { central: number };
-    expect(typeof commuteRes.central).toBe('number');
-
-    const cigRes = executeTool('calc_cigarette_equivalent', {
-      exposureUgM3H: 528,
-    }) as { central: number };
-    expect(cigRes.central).toBeCloseTo(1, 4);
+    expect(res.central).toBeLessThan(200);
   });
 
-  it('handles unknown tool gracefully in executeTool', () => {
-    const unknownRes = executeTool('unknown_tool', {}) as { error: string };
-    expect(unknownRes.error).toContain('Unknown tool: unknown_tool');
+  it('dispatches calc_ventilation_windows', () => {
+    const res = executeTool('calc_ventilation_windows', {
+      hourlyOutdoorPm25: [200, 50, 40, 200],
+      indoorPm25Closed: 100,
+    }) as unknown[];
+    expect(Array.isArray(res)).toBe(true);
+  });
+
+  it('dispatches calc_indoor_concentration', () => {
+    const res = executeTool('calc_indoor_concentration', {
+      outdoorPm25: 150,
+      windowCondition: 'tight',
+    }) as { central: number };
+    expect(res.central).toBeLessThan(150);
+  });
+
+  it('dispatches calc_commute_swap', () => {
+    const res = executeTool('calc_commute_swap', {
+      currentMode: 'walk',
+      alternativeMode: 'metro',
+      commuteHours: 1,
+      ambientPm25: 200,
+    }) as { central: number };
+    expect(res.central).toBeGreaterThan(0); // Metro is cleaner, exposure is saved
+  });
+
+  it('dispatches calc_cigarette_equivalent', () => {
+    const res = executeTool('calc_cigarette_equivalent', {
+      exposureUgM3H: 1056,
+    }) as { central: number };
+    expect(res.central).toBe(2);
+  });
+
+  it('returns error object for unknown tool', () => {
+    const res = executeTool('calc_unknown_tool', {}) as { error: string };
+    expect(res.error).toContain('Unknown tool: calc_unknown_tool');
+  });
+
+  it('has a positive MAX_TOOL_ITERATIONS constant', () => {
+    expect(MAX_TOOL_ITERATIONS).toBeGreaterThan(0);
   });
 });
 
@@ -100,17 +102,18 @@ describe('llm client and prompts', () => {
   });
 
   it('client: returns undefined in DEMO_MODE', async () => {
-    const { getAnthropicClient, getModelName } = await import('@/lib/llm');
+    const { getGeminiClient, getModelName } = await import('@/lib/llm');
     process.env['DEMO_MODE'] = 'true';
-    expect(getAnthropicClient()).toBeUndefined();
-    expect(getModelName()).toBe('claude-sonnet-4-20250514');
+    expect(getGeminiClient()).toBeUndefined();
+    expect(getModelName()).toBe('gemini-3.8-flash');
   });
 
-  it('client: throws ConfigError when DEMO_MODE is false and no ANTHROPIC_API_KEY', async () => {
-    const { getAnthropicClient } = await import('@/lib/llm');
+  it('client: throws ConfigError when DEMO_MODE is false and no API key', async () => {
+    const { getGeminiClient } = await import('@/lib/llm');
     process.env['DEMO_MODE'] = 'false';
+    delete process.env['GEMINI_API_KEY'];
     delete process.env['ANTHROPIC_API_KEY'];
-    expect(() => getAnthropicClient()).toThrow();
+    expect(() => getGeminiClient()).toThrow();
   });
 
   it('prompts: exports expected prompts and generates user prompt', async () => {

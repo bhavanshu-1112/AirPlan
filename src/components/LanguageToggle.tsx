@@ -32,28 +32,31 @@ export function LanguageToggle({ language, onToggle }: LanguageToggleProps) {
       onClick={handleToggle}
       aria-pressed={isHi}
       aria-label="Toggle language English / Hindi"
-      className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 motion-reduce:transition-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-offset-gray-900"
+      className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl border border-slate-200 bg-white/90 px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm backdrop-blur-xs transition-all hover:border-slate-300 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 motion-reduce:transition-none dark:border-slate-700 dark:bg-slate-800/90 dark:text-slate-200 dark:hover:bg-slate-700 dark:focus:ring-offset-slate-900"
     >
+      <span className="mr-1.5 text-slate-400 dark:text-slate-500" aria-hidden="true">
+        🌐
+      </span>
       <span
         lang="en"
-        className={
+        className={`rounded-md px-1.5 py-0.5 transition-colors ${
           isEn
-            ? 'font-bold text-gray-900 dark:text-white'
-            : 'font-normal text-gray-500 dark:text-gray-400'
-        }
+            ? 'bg-blue-600 font-bold text-white shadow-xs dark:bg-blue-500'
+            : 'font-medium text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
+        }`}
       >
         EN
       </span>
-      <span className="mx-1 text-gray-400 dark:text-gray-500"> | </span>
+      <span className="mx-1 text-slate-300 dark:text-slate-600">/</span>
       <span
         lang="hi"
-        className={
+        className={`rounded-md px-1.5 py-0.5 transition-colors ${
           isHi
-            ? 'font-bold text-gray-900 dark:text-white'
-            : 'font-normal text-gray-500 dark:text-gray-400'
-        }
+            ? 'bg-blue-600 font-bold text-white shadow-xs dark:bg-blue-500'
+            : 'font-medium text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
+        }`}
       >
-        हि
+        HI हिंदी
       </span>
     </button>
   );

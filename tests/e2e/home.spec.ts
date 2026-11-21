@@ -58,13 +58,15 @@ test.describe('Setup page', () => {
 test.describe('Plan page', () => {
   test('loads demo plan with default id', async ({ page }) => {
     await page.goto('/plan');
-    await expect(page.getByText('Air Quality Action Plan')).toBeVisible({ timeout: 20000 });
+    await expect(page.getByRole('heading', { name: 'Air Quality Action Plan' })).toBeVisible({
+      timeout: 20000,
+    });
   });
 
   test('displays AQI badge and action cards', async ({ page }) => {
     await page.goto('/plan?id=demo-a');
     await expect(page.getByText('Top Recommended Actions')).toBeVisible({ timeout: 25000 });
-    await expect(page.getByText('Air Quality Action Plan')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Air Quality Action Plan' })).toBeVisible();
   });
 
   test('has language toggle', async ({ page }) => {
@@ -127,11 +129,13 @@ test.describe('Navigation', () => {
 
     // Navigate to Setup
     await page.getByRole('link', { name: 'Setup', exact: true }).first().click();
-    await expect(page.getByText('Set Up Your Household')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Set Up Your Household' })).toBeVisible();
 
     // Navigate to Plan
     await page.getByRole('link', { name: 'Plan', exact: true }).first().click();
-    await expect(page.getByText('Air Quality Action Plan')).toBeVisible({ timeout: 20000 });
+    await expect(page.getByRole('heading', { name: 'Air Quality Action Plan' })).toBeVisible({
+      timeout: 20000,
+    });
 
     // Navigate to Audit
     await page.getByRole('link', { name: 'Audit', exact: true }).first().click();
