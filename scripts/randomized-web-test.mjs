@@ -95,7 +95,9 @@ async function runRandomizedWebTest() {
     await page.selectOption('#maskAvailability', 'n95');
 
     // Purifier
-    const hasPurifierCheckbox = page.locator('input[type="checkbox"]#hasPurifier, input[type="checkbox"][name*="purifier"]').first();
+    const hasPurifierCheckbox = page
+      .locator('input[type="checkbox"]#hasPurifier, input[type="checkbox"][name*="purifier"]')
+      .first();
     if (await hasPurifierCheckbox.isVisible()) {
       if (!(await hasPurifierCheckbox.isChecked())) {
         await hasPurifierCheckbox.check();
@@ -110,7 +112,10 @@ async function runRandomizedWebTest() {
       await areaInput.fill(String(randomRoomArea));
     }
 
-    await page.screenshot({ path: path.join(screenshotDir, '02_random_setup_filled.png'), fullPage: true });
+    await page.screenshot({
+      path: path.join(screenshotDir, '02_random_setup_filled.png'),
+      fullPage: true,
+    });
 
     // Submit
     console.log('  Submitting setup form to generate personalized plan...');
@@ -134,12 +139,17 @@ async function runRandomizedWebTest() {
     console.log(`  ✓ Member Baby Kabir visible: ${kabirFound}`);
 
     // Verify Infant Safety Invariant
-    const infantWarningFound = pageContent.includes('No mask recommended for infants') || pageContent.includes('infants');
+    const infantWarningFound =
+      pageContent.includes('No mask recommended for infants') || pageContent.includes('infants');
     console.log(`  ✓ Infant Safety Guidance present: ${infantWarningFound}`);
 
     // Verify Impact Cards
-    const impactCardsCount = await page.locator('[data-testid="impact-card"], .rounded-xl:has-text("Saved")').count();
-    console.log(`  ✓ Impact Cards rendered: ${impactCardsCount > 0 ? impactCardsCount : 'verified in DOM'}`);
+    const impactCardsCount = await page
+      .locator('[data-testid="impact-card"], .rounded-xl:has-text("Saved")')
+      .count();
+    console.log(
+      `  ✓ Impact Cards rendered: ${impactCardsCount > 0 ? impactCardsCount : 'verified in DOM'}`,
+    );
 
     // Expand "Show the math"
     console.log('  Testing "Show the math" calculation disclosure drawer...');
@@ -151,11 +161,16 @@ async function runRandomizedWebTest() {
       console.log(`  ✓ "Show the math" drawer opened. Table visible: ${mathTable}`);
     }
 
-    await page.screenshot({ path: path.join(screenshotDir, '03_custom_plan_math.png'), fullPage: true });
+    await page.screenshot({
+      path: path.join(screenshotDir, '03_custom_plan_math.png'),
+      fullPage: true,
+    });
 
     // ── 4. BILINGUAL HINDI TEST ──
     console.log('\n▶ Step 4: Testing English <-> Hindi Bilingual Toggle...');
-    const planLangBtn = page.locator('#main-content').getByRole('button', { name: /toggle language/i });
+    const planLangBtn = page
+      .locator('#main-content')
+      .getByRole('button', { name: /toggle language/i });
     await planLangBtn.waitFor({ state: 'visible', timeout: 10000 });
     console.log('  Toggling to Hindi...');
     await planLangBtn.click();
@@ -176,7 +191,10 @@ async function runRandomizedWebTest() {
     console.log(`  ✓ Audit page loaded. Heading: "${auditH1?.trim()}"`);
 
     // Upload a test room photo
-    const sampleImage = path.resolve(__dirname, '../node_modules/@jest/reporters/assets/jest_logo.png');
+    const sampleImage = path.resolve(
+      __dirname,
+      '../node_modules/@jest/reporters/assets/jest_logo.png',
+    );
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles(sampleImage);
     console.log('  Uploaded sample room photo, awaiting audit analysis...');
@@ -184,7 +202,10 @@ async function runRandomizedWebTest() {
     await page.waitForSelector('#findings-heading', { timeout: 25000 });
     console.log('  ✓ Audit analysis completed and findings displayed');
 
-    await page.screenshot({ path: path.join(screenshotDir, '05_audit_findings.png'), fullPage: true });
+    await page.screenshot({
+      path: path.join(screenshotDir, '05_audit_findings.png'),
+      fullPage: true,
+    });
 
     console.log('\n====================================================');
     console.log('🎉 ALL RANDOMIZED WEB TESTS PASSED SUCCESSFULLY!');

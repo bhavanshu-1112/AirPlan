@@ -6,7 +6,10 @@ async function testLiveVercel() {
   const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
 
   // 1. Home
-  await page.goto('https://air-plan-tawny.vercel.app', { waitUntil: 'networkidle', timeout: 30000 });
+  await page.goto('https://air-plan-tawny.vercel.app', {
+    waitUntil: 'networkidle',
+    timeout: 30000,
+  });
   const h1 = await page.textContent('h1');
   console.log('✓ Home Page Title:', h1?.trim());
 
@@ -32,7 +35,10 @@ async function testLiveVercel() {
 
   // 5. Navigate to Audit Page
   console.log('  Checking Audit Page...');
-  await page.goto('https://air-plan-tawny.vercel.app/audit', { waitUntil: 'networkidle', timeout: 20000 });
+  await page.goto('https://air-plan-tawny.vercel.app/audit', {
+    waitUntil: 'networkidle',
+    timeout: 20000,
+  });
   const auditHeading = await page.textContent('h1');
   console.log('✓ Audit Page Heading:', auditHeading?.trim());
 

@@ -1,20 +1,45 @@
 import { promises as fs } from 'fs';
 import path from 'path';
+import os from 'os';
 import { HouseholdSchema } from '@/lib/schemas/household';
 import type { Household } from '@/lib/schemas/household';
 import type { HouseholdRepository } from './repository';
 
-const DATA_FILE = path.resolve(process.cwd(), 'data', 'households.json');
-
 type StoreData = Record<string, Household>;
 
+function getDataFilePath(): string {
+  if (process.env['VERCEL'] || process.env['AWS_LAMBDA_FUNCTION_NAME']) {
+    return path.resolve(os.tmpdir(), 'urban-air-data', 'households.json');
+  }
+  return path.resolve(process.cwd(), 'data', 'households.json');
+}
+
+declare global {
+  var __airPlanHouseholdMemory: StoreData | undefined;
+}
+
+function getMemoryStore(): StoreData {
+  if (!globalThis.__airPlanHouseholdMemory) {
+    globalThis.__airPlanHouseholdMemory = {};
+  }
+  return globalThis.__airPlanHouseholdMemory;
+}
+
+export function resetMemoryStore(): void {
+  globalThis.__airPlanHouseholdMemory = {};
+}
+
 async function readStore(): Promise<StoreData> {
+  const memory = getMemoryStore();
+  const filePath = getDataFilePath();
+
   try {
-    const raw = await fs.readFile(DATA_FILE, 'utf-8');
+    const raw = await fs.readFile(filePath, 'utf-8');
     const parsed: unknown = JSON.parse(raw);
-    if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
-    // Validate each entry
-    const store: StoreData = {};
+    if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      return { ...memory };
+    }
+    const store: StoreData = { ...memory };
     for (const [key, value] of Object.entries(parsed as Record<string, unknown>)) {
       const result = HouseholdSchema.safeParse(value);
       if (result.success) {
@@ -24,16 +49,25 @@ async function readStore(): Promise<StoreData> {
     }
     return store;
   } catch (err: unknown) {
-    // File doesn't exist or is corrupt — start fresh
-    if ((err as NodeJS.ErrnoException).code === 'ENOENT') return {};
-    console.warn('[jsonStore] readStore error, starting with empty store:', err);
-    return {};
+    const code = (err as NodeJS.ErrnoException).code;
+    if (code !== 'ENOENT') {
+      console.warn('[jsonStore] readStore error, starting with empty store:', err);
+    }
+    return { ...memory };
   }
 }
 
 async function writeStore(data: StoreData): Promise<void> {
-  await fs.mkdir(path.dirname(DATA_FILE), { recursive: true });
-  await fs.writeFile(DATA_FILE, JSON.stringify(data, null, 2), 'utf-8');
+  const memory = getMemoryStore();
+  Object.assign(memory, data);
+
+  const filePath = getDataFilePath();
+  try {
+    await fs.mkdir(path.dirname(filePath), { recursive: true });
+    await fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8');
+  } catch (err) {
+    console.warn('[jsonStore] Disk write failed (using memory store):', err);
+  }
 }
 
 export class JsonHouseholdStore implements HouseholdRepository {
@@ -58,6 +92,9 @@ export class JsonHouseholdStore implements HouseholdRepository {
     if (!(id in store)) return false;
     // eslint-disable-next-line security/detect-object-injection
     delete store[id];
+    const memory = getMemoryStore();
+    // eslint-disable-next-line security/detect-object-injection
+    delete memory[id];
     await writeStore(store);
     return true;
   }
