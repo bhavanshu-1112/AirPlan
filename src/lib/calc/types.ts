@@ -28,3 +28,10 @@ export type AgeGroup = 'infant' | 'child' | 'adult' | 'elderly';
 
 /** Mode of transportation for commute exposure comparison. */
 export type CommuteMode = 'car' | 'metro' | 'bus' | 'bicycle' | 'walk';
+
+/** Contiguous time window during which outdoor air quality is favorable for ventilation. */
+export interface VentilationWindow {
+  startHour: number;
+  endHour: number;
+  avgPm25: number;
+}

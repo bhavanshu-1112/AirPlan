@@ -1,3 +1,5 @@
+import type { VentilationWindow } from './types';
+
 /**
  * Find contiguous windows where outdoor PM2.5 is lower than indoor PM2.5,
  * indicating that opening windows would improve indoor air quality.
@@ -9,15 +11,14 @@
 export function calcVentilationWindows(
   hourlyOutdoorPm25UgM3: number[],
   indoorPm25ClosedUgM3: number,
-): Array<{ startHour: number; endHour: number; avgPm25: number }> {
-  const windows: Array<{ startHour: number; endHour: number; avgPm25: number }> = [];
+): VentilationWindow[] {
+  const windows: VentilationWindow[] = [];
   let windowStart: number | null = null;
   let windowSum = 0;
   let windowCount = 0;
 
-  for (let h = 0; h < hourlyOutdoorPm25UgM3.length; h++) {
-    // eslint-disable-next-line security/detect-object-injection
-    const outdoor = hourlyOutdoorPm25UgM3[h] ?? Infinity;
+  for (const [h, outdoorVal] of hourlyOutdoorPm25UgM3.entries()) {
+    const outdoor = outdoorVal;
     const isGood = outdoor < indoorPm25ClosedUgM3;
 
     if (isGood) {

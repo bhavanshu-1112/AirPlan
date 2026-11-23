@@ -235,21 +235,21 @@ export const translations = {
   hi,
 };
 
+const enMap = new Map<string, string>(Object.entries(en));
+const hiMap = new Map<string, string>(Object.entries(hi));
+
 /**
  * Translate a key into the given language.
  * Falls back to English, then to the key itself if not found.
  */
 export function t(lang: Language, key: TranslationKey): string {
-  // eslint-disable-next-line security/detect-object-injection
-  const dict = translations[lang] ?? translations.en;
-  // eslint-disable-next-line security/detect-object-injection
-  const val = dict[key];
-  if (val !== undefined && typeof val === 'string') {
+  const map = lang === 'hi' ? hiMap : enMap;
+  const val = map.get(key);
+  if (val !== undefined) {
     return val;
   }
-  // eslint-disable-next-line security/detect-object-injection
-  const fallback = translations.en[key];
-  if (fallback !== undefined && typeof fallback === 'string') {
+  const fallback = enMap.get(key);
+  if (fallback !== undefined) {
     return fallback;
   }
   return String(key);

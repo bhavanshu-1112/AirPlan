@@ -21,8 +21,7 @@ export function LoadingSkeleton({
 
   const bars = Array.from({ length: barCount }, (_, index) => {
     const widthIndex = index % SKELETON_BAR_WIDTHS.length;
-    // eslint-disable-next-line security/detect-object-injection
-    return SKELETON_BAR_WIDTHS[widthIndex] ?? 'w-full';
+    return SKELETON_BAR_WIDTHS.at(widthIndex) ?? 'w-full';
   });
 
   const containerClassName = className ? `w-full space-y-3 ${className}` : 'w-full space-y-3';

@@ -1,6 +1,7 @@
 import { TTLCache } from './cache';
 import { ForecastResponseSchema, GeocodingResultSchema } from '@/lib/schemas/forecast';
 import type { ForecastResponse, GeocodingResult } from '@/lib/schemas/forecast';
+import { logger } from '@/lib/security/logger';
 import forecastFixture from '@/fixtures/forecast.json';
 import geocodingFixtureRaw from '@/fixtures/geocoding.json';
 
@@ -67,7 +68,9 @@ export async function fetchForecast(
       const data: unknown = await res.json();
       return ForecastResponseSchema.parse(data);
     } catch (err) {
-      console.warn('[openmeteo] fetchForecast failed, using fixture fallback:', err);
+      logger.warn('[openmeteo] fetchForecast failed, using fixture fallback', {
+        error: err instanceof Error ? err.message : String(err),
+      });
       return parsedForecastFixture;
     }
   });
@@ -92,7 +95,9 @@ export async function searchCity(name: string): Promise<GeocodingResult[]> {
       const results = parsed.results ?? [];
       return results.map((item) => GeocodingResultSchema.parse(item));
     } catch (err) {
-      console.warn('[openmeteo] searchCity failed, using fixture fallback:', err);
+      logger.warn('[openmeteo] searchCity failed, using fixture fallback', {
+        error: err instanceof Error ? err.message : String(err),
+      });
       return parsedGeocodingFixture;
     }
   });

@@ -3,6 +3,8 @@
  * Every constant carries its source and whether it is an assumption vs. measured/referenced value.
  */
 
+import type { WindowCondition, MaskType, AgeGroup, CommuteMode } from './types';
+
 /** A typed constant with provenance metadata. */
 export interface Constant {
   value: number;
@@ -36,7 +38,7 @@ export const DEPOSITION_RATE: Constant = {
 // ---------------------------------------------------------------------------
 
 /** Air exchange rates (ACH) for different window/envelope conditions. */
-export const AIR_EXCHANGE_RATES: Record<string, Constant> = {
+export const AIR_EXCHANGE_RATES: Record<WindowCondition, Constant> = {
   tight: { value: 0.3, unit: '1/h', source: 'ASHRAE 62.2', isAssumption: false },
   average: { value: 0.7, unit: '1/h', source: 'ASHRAE 62.2', isAssumption: false },
   leaky: { value: 1.5, unit: '1/h', source: 'ASHRAE 62.2', isAssumption: false },
@@ -48,12 +50,27 @@ export const AIR_EXCHANGE_RATES: Record<string, Constant> = {
   },
 };
 
+/** Get air exchange rate for a window condition safely without dynamic indexing. */
+export function getAirExchangeRate(condition: WindowCondition): Constant {
+  switch (condition) {
+    case 'tight':
+      return AIR_EXCHANGE_RATES.tight;
+    case 'leaky':
+      return AIR_EXCHANGE_RATES.leaky;
+    case 'open':
+      return AIR_EXCHANGE_RATES.open;
+    case 'average':
+    default:
+      return AIR_EXCHANGE_RATES.average;
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Mask filtration efficiencies and fit factors
 // ---------------------------------------------------------------------------
 
 /** Mask filtration efficiency (fraction of particles blocked by the filter medium). */
-export const MASK_EFFICIENCIES: Record<string, Constant> = {
+export const MASK_EFFICIENCIES: Record<MaskType, Constant> = {
   none: { value: 0.0, unit: 'dimensionless', source: 'N/A', isAssumption: false },
   surgical: {
     value: 0.6,
@@ -70,8 +87,23 @@ export const MASK_EFFICIENCIES: Record<string, Constant> = {
   cloth: { value: 0.3, unit: 'dimensionless', source: 'Clase et al. (2020)', isAssumption: false },
 };
 
+/** Get mask filtration efficiency safely without dynamic indexing. */
+export function getMaskEfficiency(maskType: MaskType): Constant {
+  switch (maskType) {
+    case 'surgical':
+      return MASK_EFFICIENCIES.surgical;
+    case 'n95':
+      return MASK_EFFICIENCIES.n95;
+    case 'cloth':
+      return MASK_EFFICIENCIES.cloth;
+    case 'none':
+    default:
+      return MASK_EFFICIENCIES.none;
+  }
+}
+
 /** Mask fit factor by age group (fraction of inhaled air that actually passes through filter). */
-export const MASK_FIT_FACTORS: Record<string, Constant> = {
+export const MASK_FIT_FACTORS: Record<AgeGroup, Constant> = {
   infant: {
     value: 0.0,
     unit: 'dimensionless',
@@ -97,6 +129,21 @@ export const MASK_FIT_FACTORS: Record<string, Constant> = {
     isAssumption: true,
   },
 };
+
+/** Get mask fit factor for an age group safely without dynamic indexing. */
+export function getMaskFitFactor(ageGroup: AgeGroup): Constant {
+  switch (ageGroup) {
+    case 'infant':
+      return MASK_FIT_FACTORS.infant;
+    case 'child':
+      return MASK_FIT_FACTORS.child;
+    case 'elderly':
+      return MASK_FIT_FACTORS.elderly;
+    case 'adult':
+    default:
+      return MASK_FIT_FACTORS.adult;
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Cigarette equivalence
@@ -167,7 +214,7 @@ export const DEFAULT_ROOM_AREA_M2: Constant = {
 // ---------------------------------------------------------------------------
 
 /** Multiplier applied to ambient PM2.5 for different commute modes. */
-export const COMMUTE_MULTIPLIERS: Record<string, Constant> = {
+export const COMMUTE_MULTIPLIERS: Record<CommuteMode, Constant> = {
   car: {
     value: 0.6,
     unit: 'dimensionless',
@@ -199,3 +246,20 @@ export const COMMUTE_MULTIPLIERS: Record<string, Constant> = {
     isAssumption: false,
   },
 };
+
+/** Get commute exposure multiplier safely without dynamic indexing. */
+export function getCommuteMultiplier(mode: CommuteMode): Constant {
+  switch (mode) {
+    case 'car':
+      return COMMUTE_MULTIPLIERS.car;
+    case 'metro':
+      return COMMUTE_MULTIPLIERS.metro;
+    case 'bus':
+      return COMMUTE_MULTIPLIERS.bus;
+    case 'bicycle':
+      return COMMUTE_MULTIPLIERS.bicycle;
+    case 'walk':
+    default:
+      return COMMUTE_MULTIPLIERS.walk;
+  }
+}

@@ -4,6 +4,7 @@ import os from 'os';
 import { HouseholdSchema } from '@/lib/schemas/household';
 import type { Household } from '@/lib/schemas/household';
 import type { HouseholdRepository } from './repository';
+import { logger } from '@/lib/security/logger';
 
 type StoreData = Record<string, Household>;
 
@@ -39,19 +40,20 @@ async function readStore(): Promise<StoreData> {
     if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
       return { ...memory };
     }
-    const store: StoreData = { ...memory };
+    const storeMap = new Map<string, Household>(Object.entries(memory));
     for (const [key, value] of Object.entries(parsed as Record<string, unknown>)) {
       const result = HouseholdSchema.safeParse(value);
       if (result.success) {
-        // eslint-disable-next-line security/detect-object-injection
-        store[key] = result.data;
+        storeMap.set(key, result.data);
       }
     }
-    return store;
+    return Object.fromEntries(storeMap);
   } catch (err: unknown) {
     const code = (err as NodeJS.ErrnoException).code;
     if (code !== 'ENOENT') {
-      console.warn('[jsonStore] readStore error, starting with empty store:', err);
+      logger.warn('[jsonStore] readStore error, starting with empty store', {
+        error: err instanceof Error ? err.message : String(err),
+      });
     }
     return { ...memory };
   }
@@ -66,36 +68,38 @@ async function writeStore(data: StoreData): Promise<void> {
     await fs.mkdir(path.dirname(filePath), { recursive: true });
     await fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8');
   } catch (err) {
-    console.warn('[jsonStore] Disk write failed (using memory store):', err);
+    logger.warn('[jsonStore] Disk write failed (using memory store)', {
+      error: err instanceof Error ? err.message : String(err),
+    });
   }
 }
 
 export class JsonHouseholdStore implements HouseholdRepository {
   async get(id: string): Promise<Household | undefined> {
     const store = await readStore();
-    // eslint-disable-next-line security/detect-object-injection
-    return store[id];
+    return new Map<string, Household>(Object.entries(store)).get(id);
   }
 
   async save(household: Household): Promise<Household> {
     const store = await readStore();
     const id = household.id ?? crypto.randomUUID();
     const saved: Household = { ...household, id };
-    // eslint-disable-next-line security/detect-object-injection
-    store[id] = saved;
-    await writeStore(store);
+    const map = new Map<string, Household>(Object.entries(store));
+    map.set(id, saved);
+    await writeStore(Object.fromEntries(map));
     return saved;
   }
 
   async delete(id: string): Promise<boolean> {
     const store = await readStore();
-    if (!(id in store)) return false;
-    // eslint-disable-next-line security/detect-object-injection
-    delete store[id];
+    const map = new Map<string, Household>(Object.entries(store));
+    if (!map.has(id)) return false;
+    map.delete(id);
     const memory = getMemoryStore();
-    // eslint-disable-next-line security/detect-object-injection
-    delete memory[id];
-    await writeStore(store);
+    const memoryMap = new Map<string, Household>(Object.entries(memory));
+    memoryMap.delete(id);
+    globalThis.__airPlanHouseholdMemory = Object.fromEntries(memoryMap);
+    await writeStore(Object.fromEntries(map));
     return true;
   }
 

@@ -1,6 +1,6 @@
 import type { CalcResult } from './types';
 import type { CommuteMode } from './types';
-import { COMMUTE_MULTIPLIERS } from './constants';
+import { getCommuteMultiplier } from './constants';
 import { applyUncertainty } from './uncertainty';
 
 /**
@@ -20,10 +20,8 @@ export function calcCommuteSwap(
   commuteHours: number,
   ambientPm25UgM3: number,
 ): CalcResult {
-  // eslint-disable-next-line security/detect-object-injection
-  const currentMult = (COMMUTE_MULTIPLIERS[currentMode] ?? COMMUTE_MULTIPLIERS['walk']!).value;
-  // eslint-disable-next-line security/detect-object-injection
-  const altMult = (COMMUTE_MULTIPLIERS[alternativeMode] ?? COMMUTE_MULTIPLIERS['walk']!).value;
+  const currentMult = getCommuteMultiplier(currentMode).value;
+  const altMult = getCommuteMultiplier(alternativeMode).value;
 
   const currentExposure = ambientPm25UgM3 * currentMult * commuteHours;
   const altExposure = ambientPm25UgM3 * altMult * commuteHours;

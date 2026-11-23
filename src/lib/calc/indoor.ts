@@ -2,7 +2,7 @@ import type { CalcResult } from './types';
 import type { WindowCondition } from './types';
 import {
   PENETRATION_FACTOR,
-  AIR_EXCHANGE_RATES,
+  getAirExchangeRate,
   DEPOSITION_RATE,
   DEFAULT_ROOM_AREA_M2,
   DEFAULT_CEILING_HEIGHT_M,
@@ -36,8 +36,7 @@ export function calcIndoorConcentration(
 
   const V = area * height; // room volume m³
   const P = PENETRATION_FACTOR.value; // 0.8
-  // eslint-disable-next-line security/detect-object-injection
-  const a = (AIR_EXCHANGE_RATES[windowCondition] ?? AIR_EXCHANGE_RATES['average']!).value;
+  const a = getAirExchangeRate(windowCondition).value;
   const k = DEPOSITION_RATE.value; // 0.2
 
   const numerator = P * a * outdoorPm25UgM3 + source / V;

@@ -20,10 +20,12 @@ export function sanitizeString(input: string, maxLength: number = DEFAULT_MAX_LE
  */
 export function redactCoordinates(text: string): string {
   // Match decimal coordinate pairs: e.g. "28.6139, 77.2090" or "-33.87, 151.21"
+  // Bounded length (1-3 digits) guarantees linear evaluation time.
   // eslint-disable-next-line security/detect-unsafe-regex
   const coordPairPattern = /-?\d{1,3}(?:\.\d+)?\s*,\s*-?\d{1,3}(?:\.\d+)?/g;
 
   // Match labeled coordinates: "lat: 28.61" / "latitude: 28.61" / "lon: 77.20" / "longitude: 77.20"
+  // Bounded length (1-3 digits) guarantees linear evaluation time.
   // eslint-disable-next-line security/detect-unsafe-regex
   const labeledPattern = /(?:lat(?:itude)?|lon(?:gitude)?)\s*[:=]\s*-?\d{1,3}(?:\.\d+)?/gi;
 

@@ -35,7 +35,7 @@ flowchart TD
 
     subgraph External["External"]
         OpenMeteo["Open-Meteo API"]
-        Anthropic["Anthropic API"]
+        Gemini["Google Gemini API (3-Tier Fallback)"]
     end
 
     Setup -->|POST| HouseholdAPI
@@ -52,7 +52,7 @@ flowchart TD
     AuditAPI --> Security
 
     LLM -->|tool calls| Calc
-    LLM --> Anthropic
+    LLM --> Gemini
     Data --> OpenMeteo
     Data -->|fallback| Fixtures["Fixtures"]
 
@@ -94,8 +94,8 @@ sequenceDiagram
         C-->>L: CalcResult
         L-->>P: Plan (schema-validated)
     else Live Mode
-        P->>L: generatePlan with Anthropic tool use
-        L->>L: Model calls tools → calc functions
+        P->>L: generatePlan with Gemini function calling
+        L->>L: Model calls tools → calc functions (with 3-tier fallback)
         L-->>P: Plan (schema-validated)
     end
 
@@ -112,13 +112,13 @@ sequenceDiagram
 
 **Consequence:** The LLM uses tool calling to invoke calc functions. Every number on an impact card traces to a CalcResult with its formula and inputs.
 
-### ADR-2: Direct Anthropic SDK vs Agent Framework
+### ADR-2: Direct Google Gemini REST Client & 3-Tier Fallback vs Heavy Agent Framework
 
-**Decision:** Use `@anthropic-ai/sdk` directly instead of LangChain, Vercel AI SDK, or similar.
+**Decision:** Use a lightweight direct REST client for the Google Gemini API (`gemini-3.8-flash` primary → `gemini-2.5-flash` → `gemini-3.5-flash-lite` fallbacks) instead of heavy agent frameworks like LangChain or external SDK wrappers.
 
-**Rationale:** The planning flow is a single tool-use loop with at most 6 iterations. An agent framework adds bundle size, abstraction layers, and framework-specific bugs for a simple use case. Direct SDK usage gives full control over prompts, tool definitions, and error handling.
+**Rationale:** The planning flow requires strict latency and zero bundle bloat. External multi-megabyte agent frameworks introduce breaking changes, cold start overhead, and unnecessary abstraction layers. A native fetch client provides 100% control over abort signals, payload formats, and automated 3-tier failover on HTTP 429 (rate limits) or 503 (high demand spikes).
 
-**Consequence:** Tool definitions are plain objects in `planTools.ts`. The agent loop in `planAgent.ts` is ~100 lines. In DEMO_MODE, the same function runs deterministically without any LLM call.
+**Consequence:** Zero external SDK runtime dependencies. Automatic failover guarantees seamless continuity. In DEMO_MODE, the planner runs fully offline and deterministically without network calls.
 
 ### ADR-3: JSON File Store Behind Repository Interface
 

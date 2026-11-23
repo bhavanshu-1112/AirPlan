@@ -37,10 +37,11 @@ async function extractAndValidateImage(
   request: NextRequest,
 ): Promise<{ buffer: Buffer; mimeType: string }> {
   const formData = await request.formData();
-  const file = formData.get('image') as File | null;
-  if (!file) {
+  const entry = formData.get('image');
+  if (!entry || typeof entry === 'string') {
     throw new ValidationError('Image file required');
   }
+  const file: File = entry;
 
   const buffer = Buffer.from(await file.arrayBuffer());
   const uploadResult = validateUpload(buffer);

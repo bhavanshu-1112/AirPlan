@@ -2,7 +2,7 @@
 
 ## Design Principles
 
-1. **Minimal bundle:** No heavy frameworks (no LangChain, no chart libraries). Direct Anthropic SDK + Zod + Tailwind.
+1. **Minimal bundle:** No heavy frameworks (no LangChain, no heavy SDK wrappers). Zero-dependency native fetch Google Gemini client + Zod + Tailwind.
 2. **Server-side where possible:** Myth Buster, AQI Badge, Member Chip, and Loading Skeleton are server components.
 3. **Cache everything:** TTL cache on forecast (30 min) and geocoding (24 h) with in-flight dedup.
 4. **Demo mode:** Fully offline from fixtures — zero network latency.

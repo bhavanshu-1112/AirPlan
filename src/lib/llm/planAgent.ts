@@ -1,5 +1,5 @@
 import { PlanSchema } from '@/lib/schemas/plan';
-import type { Plan, Recommendation } from '@/lib/schemas/plan';
+import type { Plan, Recommendation, MemberPlan } from '@/lib/schemas/plan';
 import type { Household, Member } from '@/lib/schemas/household';
 import type { ForecastResponse } from '@/lib/schemas/forecast';
 import { calcExposure } from '@/lib/calc/exposure';
@@ -15,6 +15,7 @@ import type {
   MaskType,
   AgeGroup,
   CommuteMode,
+  VentilationWindow,
 } from '@/lib/calc/types';
 
 const MAX_TOOL_ITERATIONS = 6;
@@ -88,8 +89,6 @@ function summarizeForecast(forecast: ForecastResponse): ForecastSummary {
   return { pm25, avgPm25, minMidday, aqiCat };
 }
 
-type VentWindow = { startHour: number; endHour: number; avgPm25: number };
-
 function buildTimingAction(
   household: Household,
   fs: ForecastSummary,
@@ -140,7 +139,7 @@ function buildMaskAction(household: Household, fs: ForecastSummary, isHi: boolea
 function buildVentAction(
   household: Household,
   indoorResult: CalcResult,
-  ventWindows: VentWindow[],
+  ventWindows: VentilationWindow[],
   isHi: boolean,
 ): Recommendation {
   const hasVent = ventWindows.length > 0;
@@ -178,9 +177,9 @@ function buildMemberPlan(
   member: Member,
   household: Household,
   avgPm25: number,
-  ventWindows: VentWindow[],
+  ventWindows: VentilationWindow[],
   isHi: boolean,
-) {
+): MemberPlan {
   const maskR = calcMaskEffect(
     avgPm25,
     household.maskAvailability as MaskType,

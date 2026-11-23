@@ -59,7 +59,7 @@ npm run dev                   # Start dev server, visit http://localhost:3000
 | Server components where possible          | `src/components/AqiBadge.tsx`, `MemberChip.tsx`, `MythBuster.tsx`, `LoadingSkeleton.tsx` |
 | Client-side image downscale before upload | `src/components/PhotoUpload.tsx`                                                         |
 | Bundle size check in verify               | `scripts/verify.js` → `bundleSizeCheck()`                                                |
-| No heavy frameworks (no LangChain)        | `package.json` — only `@anthropic-ai/sdk` + `zod`                                        |
+| No heavy frameworks (no LangChain)        | `package.json` — zero external LLM SDK dependencies (native fetch client) + `zod`        |
 
 **Verify:** `npm run verify` (includes bundle size check) and `npm run bench`
 
@@ -127,6 +127,6 @@ See `docs/ALIGNMENT.md` for full analysis.
 ## Known Limitations
 
 1. **EXIF stripping** not yet implemented — files are validated for magic bytes and size, but EXIF metadata is not stripped before analysis.
-2. **Live LLM mode** exists with Anthropic SDK integration, but demo mode (`DEMO_MODE=true`) is the default offline-tested path.
+2. **Live LLM mode** is powered by Google Gemini API (`gemini-3.8-flash` with 3-tier automatic failover to `gemini-2.5-flash` and `gemini-3.5-flash-lite`), with demo mode (`DEMO_MODE=true`) providing offline predictability.
 3. **Rate limiting** is in-memory and resets on server restart.
 4. **No authentication** — household profiles are accessible by UUID/ID per hackathon MVP spec.

@@ -1,4 +1,5 @@
 import { ConfigError } from '@/lib/security/errors';
+import { logger } from '@/lib/security/logger';
 
 export interface GeminiPart {
   text?: string;
@@ -221,8 +222,9 @@ export class GeminiClient {
 
         if (!isLast && isQuotaOrUnavailableError(error)) {
           const nextModel = models.at(index + 1) ?? 'next-fallback';
-          console.warn(
+          logger.warn(
             `[GeminiClient] Model ${model} encountered quota/unavailable error (${error.message}). Switching to fallback model ${nextModel}...`,
+            { model, nextModel, error: error.message },
           );
           continue;
         }

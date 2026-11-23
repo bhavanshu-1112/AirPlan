@@ -26,7 +26,7 @@ AirPlan follows defense-in-depth. Every layer validates independently.
 ## Secrets Management
 
 - API keys read only from environment variables
-- Fail-fast with `ConfigError` if `ANTHROPIC_API_KEY` missing outside DEMO_MODE
+- Fail-fast with `ConfigError` if `GEMINI_API_KEY` (or legacy `ANTHROPIC_API_KEY`) is missing outside DEMO_MODE
 - `.env` in `.gitignore`
 - `.env.example` documents required variables without values
 - Secret scan in `npm run verify` checks for leaked keys using regex patterns

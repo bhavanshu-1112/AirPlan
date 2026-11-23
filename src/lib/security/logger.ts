@@ -24,20 +24,17 @@ const SENSITIVE_KEYS = new Set([
 ]);
 
 function redactSensitive(data: Record<string, unknown>): Record<string, unknown> {
-  const result: Record<string, unknown> = {};
+  const result = new Map<string, unknown>();
   for (const [key, value] of Object.entries(data)) {
     if (SENSITIVE_KEYS.has(key.toLowerCase())) {
-      // eslint-disable-next-line security/detect-object-injection
-      result[key] = '[REDACTED]';
+      result.set(key, '[REDACTED]');
     } else if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
-      // eslint-disable-next-line security/detect-object-injection
-      result[key] = redactSensitive(value as Record<string, unknown>);
+      result.set(key, redactSensitive(value as Record<string, unknown>));
     } else {
-      // eslint-disable-next-line security/detect-object-injection
-      result[key] = value;
+      result.set(key, value);
     }
   }
-  return result;
+  return Object.fromEntries(result);
 }
 
 function createLogEntry(

@@ -47,6 +47,8 @@ function secretScan() {
   const patterns = [
     /sk-ant-[a-zA-Z0-9_-]{20,}/g,
     /ANTHROPIC_API_KEY\s*=\s*sk-/g,
+    /AIza[0-9A-Za-z-_]{35}/g,
+    /GEMINI_API_KEY\s*=\s*AQ\./g,
     /-----BEGIN (RSA |EC )?PRIVATE KEY-----/g,
   ];
   const srcDir = path.resolve(__dirname, '..', 'src');

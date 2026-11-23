@@ -56,7 +56,7 @@ src/
 - **Next.js 16** (App Router) + **TypeScript** (strict)
 - **Tailwind CSS 4** (mobile-first)
 - **Zod v4** (schema validation)
-- **@anthropic-ai/sdk** (LLM, direct SDK)
+- **Google Gemini API** (LLM, zero-dependency native fetch client with 3-tier fallback)
 - **Jest** + **Playwright** (testing)
 - **Open-Meteo** (air quality forecast)
 

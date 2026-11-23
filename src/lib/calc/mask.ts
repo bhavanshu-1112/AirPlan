@@ -1,6 +1,6 @@
 import type { CalcResult } from './types';
 import type { MaskType, AgeGroup } from './types';
-import { MASK_EFFICIENCIES, MASK_FIT_FACTORS } from './constants';
+import { getMaskEfficiency, getMaskFitFactor } from './constants';
 import { applyUncertainty } from './uncertainty';
 
 /**
@@ -29,10 +29,8 @@ export function calcMaskEffect(
     };
   }
 
-  // eslint-disable-next-line security/detect-object-injection
-  const efficiency = (MASK_EFFICIENCIES[maskType] ?? MASK_EFFICIENCIES['none']!).value;
-  // eslint-disable-next-line security/detect-object-injection
-  const fitFactor = (MASK_FIT_FACTORS[ageGroup] ?? MASK_FIT_FACTORS['adult']!).value;
+  const efficiency = getMaskEfficiency(maskType).value;
+  const fitFactor = getMaskFitFactor(ageGroup).value;
   const reduction = efficiency * fitFactor;
   const central = ambientPm25UgM3 * (1 - reduction);
 

@@ -27,9 +27,10 @@ async function resolveHouseholdAndForecast(householdId: string): Promise<{
   household: Household;
   forecast: ForecastResponse;
 }> {
-  const householdsMap = householdsFixture as Record<string, Household>;
-  // eslint-disable-next-line security/detect-object-injection
-  let household: Household | undefined = householdsMap[householdId];
+  const householdsMap = new Map<string, Household>(
+    Object.entries(householdsFixture as Record<string, Household>),
+  );
+  let household: Household | undefined = householdsMap.get(householdId);
 
   if (!household) {
     const store = new JsonHouseholdStore();
