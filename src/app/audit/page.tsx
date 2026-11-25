@@ -13,6 +13,23 @@ interface AuditFinding {
   paramAdjustment?: Record<string, unknown> | undefined;
 }
 
+/** Extract an error message from an unknown API response body. */
+function extractErrorMessage(body: unknown, fallback: string): string {
+  if (typeof body !== 'object' || body === null || !('error' in body)) return fallback;
+  const err = (body as Record<string, unknown>)['error'];
+  if (typeof err === 'object' && err !== null && 'message' in err) {
+    const msg = (err as Record<string, unknown>)['message'];
+    return typeof msg === 'string' ? msg : fallback;
+  }
+  return fallback;
+}
+
+/** Extract audit findings from an unknown API response body. */
+function extractFindings(body: unknown): AuditFinding[] {
+  if (typeof body !== 'object' || body === null || !('findings' in body)) return [];
+  return (body as { findings: AuditFinding[] }).findings;
+}
+
 const categoryIcons: Record<string, string> = {
   ventilation: '🪟',
   source: '🔥',
@@ -47,12 +64,12 @@ export default function AuditPage() {
       });
 
       if (!res.ok) {
-        const errData = (await res.json()) as { error?: { message?: string } };
-        throw new Error(errData.error?.message ?? `HTTP ${res.status}`);
+        const errData: unknown = await res.json();
+        throw new Error(extractErrorMessage(errData, `HTTP ${res.status}`));
       }
 
-      const data = (await res.json()) as { findings: AuditFinding[] };
-      setFindings(data.findings);
+      const data: unknown = await res.json();
+      setFindings(extractFindings(data));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Analysis failed');
     } finally {

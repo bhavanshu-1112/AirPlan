@@ -11,6 +11,17 @@ import LanguageToggle from '@/components/LanguageToggle';
 import type { Plan } from '@/lib/schemas/plan';
 import type { Language } from '@/lib/i18n';
 
+/** Extract an error message from an unknown API response body. */
+function extractErrorMessage(body: unknown, fallback: string): string {
+  if (typeof body !== 'object' || body === null || !('error' in body)) return fallback;
+  const err = (body as Record<string, unknown>)['error'];
+  if (typeof err === 'object' && err !== null && 'message' in err) {
+    const msg = (err as Record<string, unknown>)['message'];
+    return typeof msg === 'string' ? msg : fallback;
+  }
+  return fallback;
+}
+
 function PlanHeader({
   plan,
   isHi,
@@ -273,12 +284,12 @@ function PlanContent() {
           body: JSON.stringify({ householdId, language }),
         });
         if (!res.ok) {
-          const errData = (await res.json()) as { error?: { message?: string } };
-          throw new Error(errData.error?.message ?? `HTTP ${res.status}`);
+          const errBody: unknown = await res.json();
+          throw new Error(extractErrorMessage(errBody, `HTTP ${res.status}`));
         }
-        const data = (await res.json()) as Plan;
+        const data: unknown = await res.json();
         if (!isCancelled) {
-          setPlan(data);
+          setPlan(data as Plan);
           setError(undefined);
           setLoading(false);
         }

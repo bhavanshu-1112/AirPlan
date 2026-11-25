@@ -1,12 +1,18 @@
 import mythsData from '@/content/myths.json';
+import { z } from 'zod/v4';
 
-interface Myth {
-  id: string;
-  claim: string;
-  verdict: boolean | string;
-  explanation: string;
-  source: string;
-}
+const MythSchema = z.object({
+  id: z.string(),
+  claim: z.string(),
+  verdict: z.union([z.boolean(), z.string()]),
+  explanation: z.string(),
+  source: z.string(),
+});
+
+type Myth = z.infer<typeof MythSchema>;
+
+/** Pre-validated myth data. */
+const myths: Myth[] = mythsData.map((item) => MythSchema.parse(item));
 
 function VerdictBadge({ verdict }: { verdict: boolean | string }) {
   if (verdict === true) {
@@ -31,8 +37,6 @@ function VerdictBadge({ verdict }: { verdict: boolean | string }) {
 }
 
 export default function MythBuster() {
-  const myths = mythsData as Myth[];
-
   return (
     <section aria-labelledby="myths-heading" className="mt-12 space-y-4">
       <div className="flex flex-col gap-1">

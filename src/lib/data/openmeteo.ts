@@ -91,8 +91,10 @@ export async function searchCity(name: string): Promise<GeocodingResult[]> {
         `?name=${encodeURIComponent(name)}&count=5&language=en&format=json`;
       const res = await fetchWithRetry(url);
       const data: unknown = await res.json();
-      const parsed = data as { results?: unknown[] };
-      const results = parsed.results ?? [];
+      const parsed = typeof data === 'object' && data !== null ? data : {};
+      const results = 'results' in parsed && Array.isArray((parsed as Record<string, unknown>)['results'])
+        ? ((parsed as Record<string, unknown>)['results'] as unknown[])
+        : [];
       return results.map((item) => GeocodingResultSchema.parse(item));
     } catch (err) {
       logger.warn('[openmeteo] searchCity failed, using fixture fallback', {

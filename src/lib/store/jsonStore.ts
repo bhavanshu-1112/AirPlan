@@ -8,6 +8,11 @@ import { logger } from '@/lib/security/logger';
 
 type StoreData = Record<string, Household>;
 
+/** Type guard for Node.js filesystem errors. */
+function isNodeError(err: unknown): err is NodeJS.ErrnoException {
+  return err instanceof Error && 'code' in err;
+}
+
 function getDataFilePath(): string {
   if (process.env['VERCEL'] || process.env['AWS_LAMBDA_FUNCTION_NAME']) {
     return path.resolve(os.tmpdir(), 'urban-air-data', 'households.json');
@@ -41,7 +46,8 @@ async function readStore(): Promise<StoreData> {
       return { ...memory };
     }
     const storeMap = new Map<string, Household>(Object.entries(memory));
-    for (const [key, value] of Object.entries(parsed as Record<string, unknown>)) {
+    const record = parsed as Record<string, unknown>;
+    for (const [key, value] of Object.entries(record)) {
       const result = HouseholdSchema.safeParse(value);
       if (result.success) {
         storeMap.set(key, result.data);
@@ -49,7 +55,7 @@ async function readStore(): Promise<StoreData> {
     }
     return Object.fromEntries(storeMap);
   } catch (err: unknown) {
-    const code = (err as NodeJS.ErrnoException).code;
+    const code = isNodeError(err) ? err.code : undefined;
     if (code !== 'ENOENT') {
       logger.warn('[jsonStore] readStore error, starting with empty store', {
         error: err instanceof Error ? err.message : String(err),

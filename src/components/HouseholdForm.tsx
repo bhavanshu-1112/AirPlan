@@ -11,6 +11,23 @@ interface GeoResult {
   admin1?: string | undefined;
 }
 
+/** Extract an error message from an unknown API response body. */
+function extractErrorMessage(body: unknown, fallback: string): string {
+  if (typeof body !== 'object' || body === null || !('error' in body)) return fallback;
+  const err = (body as Record<string, unknown>)['error'];
+  if (typeof err === 'object' && err !== null && 'message' in err) {
+    const msg = (err as Record<string, unknown>)['message'];
+    return typeof msg === 'string' ? msg : fallback;
+  }
+  return fallback;
+}
+
+/** Extract the saved household ID from an unknown response body. */
+function extractSavedId(body: unknown): string {
+  if (typeof body !== 'object' || body === null || !('id' in body)) return '';
+  return String((body as { id: unknown }).id);
+}
+
 interface MemberState {
   name: string;
   ageGroup: string;
@@ -519,8 +536,12 @@ export default function HouseholdForm() {
       try {
         const res = await fetch(`/api/geocode?name=${encodeURIComponent(query)}`);
         if (!res.ok) return;
-        const data = (await res.json()) as { results: GeoResult[] };
-        setCityResults(data.results);
+        const data: unknown = await res.json();
+        const results =
+          typeof data === 'object' && data !== null && 'results' in data
+            ? ((data as Record<string, unknown>)['results'] as GeoResult[])
+            : [];
+        setCityResults(results);
         setShowDropdown(true);
       } catch {
         // Silently fail geocoding
@@ -636,12 +657,13 @@ export default function HouseholdForm() {
         });
 
         if (!res.ok) {
-          const errData = (await res.json()) as { error?: { message?: string } };
-          throw new Error(errData.error?.message ?? 'Failed to save household');
+          const errBody: unknown = await res.json();
+          throw new Error(extractErrorMessage(errBody, 'Failed to save household'));
         }
 
-        const saved = (await res.json()) as { id: string };
-        router.push(`/plan?id=${saved.id}`);
+        const savedBody: unknown = await res.json();
+        const savedId = extractSavedId(savedBody);
+        router.push(`/plan?id=${savedId}`);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
         setSubmitting(false);

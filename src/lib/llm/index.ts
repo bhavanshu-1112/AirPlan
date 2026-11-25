@@ -1,6 +1,5 @@
 export {
   getGeminiClient,
-  getAnthropicClient,
   resetGeminiClient,
   getModelName,
   getFallbackModels,

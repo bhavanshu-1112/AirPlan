@@ -9,6 +9,7 @@ import { calcIndoorConcentration } from '@/lib/calc/indoor';
 import { calcCommuteSwap } from '@/lib/calc/commuteSwap';
 import { calcCigaretteEquivalent } from '@/lib/calc/cigarettes';
 import { getAqiCategory } from '@/lib/calc/aqi';
+import { CIGARETTE_EQUIVALENT_UG_H_M3 } from '@/lib/calc/constants';
 import type {
   CalcResult,
   WindowCondition,
@@ -20,43 +21,68 @@ import type {
 
 const MAX_TOOL_ITERATIONS = 6;
 
-/** Execute a calc tool by name. */
+/** Cigarette equivalence divisor from physical constants. */
+const CIG_DIVISOR = CIGARETTE_EQUIVALENT_UG_H_M3.value;
+
+/** Safely coerce an unknown value to a number. */
+function toNumber(value: unknown): number {
+  return Number(value);
+}
+
+/** Safely coerce an unknown value to a string. */
+function toString(value: unknown): string {
+  return String(value);
+}
+
+/** Safely coerce an unknown value to a number array. */
+function toNumberArray(value: unknown): number[] {
+  return Array.isArray(value) ? value.map(Number) : [];
+}
+
+/** Safely coerce an unknown value to an optional number array. */
+function toOptionalNumberArray(value: unknown): number[] | undefined {
+  return Array.isArray(value) ? value.map(Number) : undefined;
+}
+
+/** Execute a calc tool by name with runtime-validated arguments. */
 function executeTool(name: string, args: Record<string, unknown>): CalcResult | unknown {
   switch (name) {
     case 'calc_exposure':
       return calcExposure(
-        args['hourlyConcentrations'] as number[],
-        args['hoursPerSlot'] as number[] | undefined,
+        toNumberArray(args['hourlyConcentrations']),
+        toOptionalNumberArray(args['hoursPerSlot']),
       );
     case 'calc_mask_effect':
       return calcMaskEffect(
-        args['ambientPm25'] as number,
-        args['maskType'] as MaskType,
-        args['ageGroup'] as AgeGroup,
+        toNumber(args['ambientPm25']),
+        toString(args['maskType']) as MaskType,
+        toString(args['ageGroup']) as AgeGroup,
       );
     case 'calc_ventilation_windows':
       return calcVentilationWindows(
-        args['hourlyOutdoorPm25'] as number[],
-        args['indoorPm25Closed'] as number,
+        toNumberArray(args['hourlyOutdoorPm25']),
+        toNumber(args['indoorPm25Closed']),
       );
     case 'calc_indoor_concentration':
       return calcIndoorConcentration(
-        args['outdoorPm25'] as number,
-        args['windowCondition'] as WindowCondition,
-        args['cadrM3PerHour'] as number | undefined,
-        args['roomAreaM2'] as number | undefined,
+        toNumber(args['outdoorPm25']),
+        toString(args['windowCondition']) as WindowCondition,
+        args['cadrM3PerHour'] !== undefined ? toNumber(args['cadrM3PerHour']) : undefined,
+        args['roomAreaM2'] !== undefined ? toNumber(args['roomAreaM2']) : undefined,
         undefined,
-        args['indoorSourceUgPerHour'] as number | undefined,
+        args['indoorSourceUgPerHour'] !== undefined
+          ? toNumber(args['indoorSourceUgPerHour'])
+          : undefined,
       );
     case 'calc_commute_swap':
       return calcCommuteSwap(
-        args['currentMode'] as CommuteMode,
-        args['alternativeMode'] as CommuteMode,
-        args['commuteHours'] as number,
-        args['ambientPm25'] as number,
+        toString(args['currentMode']) as CommuteMode,
+        toString(args['alternativeMode']) as CommuteMode,
+        toNumber(args['commuteHours']),
+        toNumber(args['ambientPm25']),
       );
     case 'calc_cigarette_equivalent':
-      return calcCigaretteEquivalent(args['exposureUgM3H'] as number);
+      return calcCigaretteEquivalent(toNumber(args['exposureUgM3H']));
     default:
       return { error: `Unknown tool: ${name}` };
   }
@@ -103,7 +129,7 @@ function buildTimingAction(
       beforeExposure: fs.avgPm25 * 3,
       afterExposure: fs.minMidday * 3,
       exposureSaved: (fs.avgPm25 - fs.minMidday) * 3,
-      cigaretteEquivalentSaved: ((fs.avgPm25 - fs.minMidday) * 3) / 528,
+      cigaretteEquivalentSaved: ((fs.avgPm25 - fs.minMidday) * 3) / CIG_DIVISOR,
       formula: baseExp.formula,
       inputs: baseExp.inputs,
       range: { low: baseExp.low, central: baseExp.central, high: baseExp.high },
@@ -122,7 +148,7 @@ function buildMaskAction(household: Household, fs: ForecastSummary, isHi: boolea
       beforeExposure: fs.avgPm25,
       afterExposure: fs.avgPm25 * 0.24,
       exposureSaved: fs.avgPm25 * 0.76,
-      cigaretteEquivalentSaved: (fs.avgPm25 * 0.76) / 528,
+      cigaretteEquivalentSaved: (fs.avgPm25 * 0.76) / CIG_DIVISOR,
       formula: `C_breathed = ${fs.avgPm25.toFixed(0)} × (1 - 0.95 × 0.8) = ${(fs.avgPm25 * 0.24).toFixed(1)} µg/m³`,
       inputs: { ambientPm25: fs.avgPm25, efficiency: 0.95, fitFactor: 0.8 },
       range: {
@@ -163,7 +189,7 @@ function buildVentAction(
       beforeExposure: indoorResult.central,
       afterExposure: ventAfter,
       exposureSaved: ventSaved,
-      cigaretteEquivalentSaved: ventSaved / 528,
+      cigaretteEquivalentSaved: ventSaved / CIG_DIVISOR,
       formula: indoorResult.formula,
       inputs: indoorResult.inputs,
       range: { low: indoorResult.low, central: indoorResult.central, high: indoorResult.high },
@@ -180,11 +206,7 @@ function buildMemberPlan(
   ventWindows: VentilationWindow[],
   isHi: boolean,
 ): MemberPlan {
-  const maskR = calcMaskEffect(
-    avgPm25,
-    household.maskAvailability as MaskType,
-    member.ageGroup as AgeGroup,
-  );
+  const maskR = calcMaskEffect(avgPm25, household.maskAvailability, member.ageGroup);
   const maskRec =
     member.ageGroup === 'infant'
       ? isHi
@@ -227,7 +249,7 @@ function buildDemoPlan(
 
   const indoorResult = calcIndoorConcentration(
     fs.avgPm25,
-    household.windowCondition as WindowCondition,
+    household.windowCondition,
     household.purifier?.cadrM3PerHour,
     household.purifier?.roomAreaM2,
   );

@@ -112,7 +112,6 @@ describe('llm client and prompts', () => {
     const { getGeminiClient } = await import('@/lib/llm');
     process.env['DEMO_MODE'] = 'false';
     delete process.env['GEMINI_API_KEY'];
-    delete process.env['ANTHROPIC_API_KEY'];
     expect(() => getGeminiClient()).toThrow();
   });
 

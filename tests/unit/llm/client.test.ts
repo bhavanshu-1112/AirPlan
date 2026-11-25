@@ -1,6 +1,5 @@
 import {
   getGeminiClient,
-  getAnthropicClient,
   resetGeminiClient,
   getModelName,
   getFallbackModels,
@@ -27,15 +26,12 @@ describe('Gemini LLM client and fallback orchestration', () => {
     it('returns undefined in DEMO_MODE', () => {
       process.env['DEMO_MODE'] = 'true';
       expect(getGeminiClient()).toBeUndefined();
-      expect(getAnthropicClient()).toBeUndefined();
     });
 
     it('throws ConfigError when API key is missing and not in DEMO_MODE', () => {
       process.env['DEMO_MODE'] = 'false';
       delete process.env['GEMINI_API_KEY'];
-      delete process.env['ANTHROPIC_API_KEY'];
       expect(() => getGeminiClient()).toThrow(/GEMINI_API_KEY/);
-      expect(() => getAnthropicClient()).toThrow(/ANTHROPIC_API_KEY/);
     });
 
     it('returns client singleton when GEMINI_API_KEY is provided', () => {
@@ -47,30 +43,14 @@ describe('Gemini LLM client and fallback orchestration', () => {
       expect(client1).toBe(client2);
     });
 
-    it('falls back to ANTHROPIC_API_KEY when GEMINI_API_KEY is not set', () => {
-      process.env['DEMO_MODE'] = 'false';
-      delete process.env['GEMINI_API_KEY'];
-      process.env['ANTHROPIC_API_KEY'] = 'legacy-key-456';
-      const client = getGeminiClient();
-      expect(client).toBeInstanceOf(GeminiClient);
-      expect(client?.apiKey).toBe('legacy-key-456');
-    });
-
     it('returns default model name gemini-3.8-flash', () => {
       delete process.env['GEMINI_MODEL'];
-      delete process.env['ANTHROPIC_MODEL'];
       expect(getModelName()).toBe('gemini-3.8-flash');
     });
 
     it('returns custom model name from GEMINI_MODEL env', () => {
       process.env['GEMINI_MODEL'] = 'custom-gemini-model';
       expect(getModelName()).toBe('custom-gemini-model');
-    });
-
-    it('falls back to ANTHROPIC_MODEL if GEMINI_MODEL is not set', () => {
-      delete process.env['GEMINI_MODEL'];
-      process.env['ANTHROPIC_MODEL'] = 'claude-3-haiku';
-      expect(getModelName()).toBe('claude-3-haiku');
     });
 
     it('normalizes spaces in model names', () => {
